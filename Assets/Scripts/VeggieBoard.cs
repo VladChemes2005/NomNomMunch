@@ -18,6 +18,10 @@ public class VeggieBoard : MonoBehaviour
     public Node[,] veggieBoard;
     public GameObject veggieBoardGO;
     
+    //tiles underneath nodes
+    public GameObject tilePrefab;
+    
+
     //layoutArray
     public ArrayLayout arrayLayout;
     
@@ -38,7 +42,7 @@ public class VeggieBoard : MonoBehaviour
     void InitializeBoard()
     {
         veggieBoard = new Node[width, height];
-
+        
         spacingX = (float)(width - 1) / 2;
         spacingY = (float)((height - 1) / 2) + 1;
 
@@ -58,6 +62,9 @@ public class VeggieBoard : MonoBehaviour
                     GameObject veggie = Instantiate(veggiesPrefabs[randomIndex], position, Quaternion.identity);
                     veggie.GetComponent<Veggies>().SetIndicies(x, y);
                     veggieBoard[x, y] = new Node(true, veggie);
+                    
+                    GameObject Tile = Instantiate(tilePrefab, position, Quaternion.identity);
+                    veggieBoard[x, y] = new Node(false, Tile);
                 }
             }
         }
