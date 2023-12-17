@@ -248,12 +248,12 @@ MonoBehaviour:
   height: 7
   spacingX: 0
   spacingY: 0
-  veggiesPrefabs:
+  veggiePrefabs:
   - {fileID: 7949858551464243695, guid: 7e4a7d058ef678a499caa2c83f0a0252, type: 3}
   - {fileID: 1258115303489137054, guid: 1a2c6aff01cc32b4486e9c79263f3042, type: 3}
-  - {fileID: 21126340384429358, guid: bf4bff69b495964479686b9dc7ee2bbd, type: 3}
-  - {fileID: 6204054816007192911, guid: f1a7deba6fc0af947992fb89749b19ec, type: 3}
+  - {fileID: 1983282597259498752, guid: d4a727d5f3378454899e56b296043e01, type: 3}
   - {fileID: 1546948542748389291, guid: 24ea3707b558c594baf181acbde05740, type: 3}
+  - {fileID: 21126340384429358, guid: bf4bff69b495964479686b9dc7ee2bbd, type: 3}
   veggieBoardGO: {fileID: 1498682297}
   arrayLayout:
     rows:
