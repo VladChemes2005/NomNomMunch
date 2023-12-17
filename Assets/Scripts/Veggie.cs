@@ -39,6 +39,39 @@ public class Veggie : MonoBehaviour
     {
         
     }
+
+    #region
+    // Move target
+    public void MoveToTarget(Vector2 targetPos)
+    {
+        StartCoroutine(MoveCoroutine(targetPos));
+
+    }
+    
+    //Move coroutine
+    private IEnumerator MoveCoroutine(Vector2 targetPos)
+    {
+        isMoving = true;
+        float duration = 0.2f;
+
+        Vector2 startPosition = transform.position;
+        float elapsedTime = 0f;
+
+        while (elapsedTime < duration)
+        {
+            float t = elapsedTime / duration;
+
+            transform.position = Vector2.Lerp(startPosition, targetPos, t);
+
+            elapsedTime += Time.deltaTime;
+
+            yield return null;
+        }
+
+        transform.position = targetPos;
+        isMoving = false;
+    }
+    #endregion
 }
 
 public enum VeggieType

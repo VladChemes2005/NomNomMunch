@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class VeggieBoard : MonoBehaviour
 {
-    
+
     //defining board size
     public int width = 7;
     public int height = 7;
@@ -20,7 +20,14 @@ public class VeggieBoard : MonoBehaviour
     
     //tiles underneath nodes
     public GameObject tilePrefab;
-    
+
+    public List<GameObject> vegiesToDestroy = new();
+
+    [SerializeField]
+    private Veggie selectedVeggie;
+
+    [SerializeField]
+    private bool isProcessingMove;
 
     //layoutArray
     public ArrayLayout arrayLayout;
@@ -41,6 +48,8 @@ public class VeggieBoard : MonoBehaviour
 
     void InitializeBoard()
     {
+        DestroyVeggies();
+
         veggieBoard = new Node[width, height];
         
         spacingX = (float)(width - 1) / 2;
@@ -63,8 +72,9 @@ public class VeggieBoard : MonoBehaviour
                     veggie.GetComponent<Veggie>().SetIndicies(x, y);
                     veggieBoard[x, y] = new Node(true, veggie);
                     
-                    GameObject Tile = Instantiate(tilePrefab, position, Quaternion.identity);
-                    veggieBoard[x, y] = new Node(false, Tile);
+                    //GameObject Tile = Instantiate(tilePrefab, position, Quaternion.identity);
+                    //veggieBoard[x, y] = new Node(false, Tile);
+                    vegiesToDestroy.Add(veggie);
                 }
             }
         }
@@ -76,6 +86,28 @@ public class VeggieBoard : MonoBehaviour
         else
         {
             Debug.Log("There are no matches, it's time to start the game!");
+        }
+    }
+
+    void Update()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit2D hit = Physics2D.Raycast(ray.origin, ray.direction);
+
+            if (hit.collider != null && hit.collider.gameObject.GetComponent<Veggie>())
+            {
+                if (isProcessingMove)
+                {
+                    return;
+                }
+
+                Veggie veggie = hit.collider.gameObject.GetComponent<Veggie>();
+                Debug.Log($"I have a clicked a veggie it is: a {veggie.gameObject}");
+
+                SelectVeggie(veggie);
+            }
         }
     }
 
@@ -233,8 +265,95 @@ public class VeggieBoard : MonoBehaviour
         }
     }
 
+    #region
+    //destroy veggies
+    private void DestroyVeggies()
+    {
+        if (vegiesToDestroy != null)
+        {
+            foreach (GameObject veg in vegiesToDestroy)
+            {
+                Destroy(veg);
+            }
+            vegiesToDestroy.Clear();
+        }
+    }
+
+    //select veggies
+    private void SelectVeggie(Veggie veg)
+    {
+        if (selectedVeggie == null)
+        {
+            Debug.Log(veg);
+            selectedVeggie = veg;
+        }
+        else if (selectedVeggie == veg)
+        {
+            selectedVeggie = null;
+        }
+        else if (selectedVeggie != veg)
+        {
+            SwapVeggies(selectedVeggie, veg);
+            selectedVeggie = null;
+        }
+    }
+
+    //swap veggies
+    private void SwapVeggies(Veggie currentVeg, Veggie targetVeg)
+    {
+        if (!isAdjacent(currentVeg, targetVeg))
+        {
+            return;
+        }
+
+        DoSwap(currentVeg, targetVeg);
+
+        isProcessingMove = true;
+
+        StartCoroutine(ProcessMatches(currentVeg, targetVeg));
+    }
+
+    //do swap veggies
+    private void DoSwap(Veggie currentVeg, Veggie targetVeg)
+    {
+        GameObject temp = veggieBoard[currentVeg.xIndex, currentVeg.yIndex].veggie;
+
+        veggieBoard[currentVeg.xIndex, currentVeg.yIndex].veggie = veggieBoard[targetVeg.xIndex, targetVeg.yIndex].veggie;
+        veggieBoard[targetVeg.xIndex, targetVeg.yIndex].veggie = temp;
+
+        int tempXIndex = currentVeg.xIndex;
+        int tempYIndex = currentVeg.yIndex;
+        currentVeg.xIndex = targetVeg.xIndex;
+        currentVeg.yIndex = targetVeg.yIndex;
+        targetVeg.xIndex = tempXIndex;
+        targetVeg.yIndex = tempYIndex;
 
 
+        currentVeg.MoveToTarget(veggieBoard[targetVeg.xIndex, targetVeg.yIndex].veggie.transform.position);
+
+        targetVeg.MoveToTarget(veggieBoard[currentVeg.xIndex, currentVeg.yIndex].veggie.transform.position);
+    }
+
+    //process matches
+    private IEnumerator ProcessMatches(Veggie currentVeg, Veggie targetVeg)
+    {
+        yield return new WaitForSeconds(0.2f);
+
+        bool hasMatch = CheckBoard();
+
+        if (!hasMatch)
+        {
+            DoSwap(currentVeg, targetVeg);
+        }
+        isProcessingMove = false;
+    }
+
+    // is adjacent
+    private bool isAdjacent(Veggie currentVeg, Veggie targetVeg)
+    {
+        return Mathf.Abs(currentVeg.xIndex - targetVeg.xIndex) + Mathf.Abs(currentVeg.yIndex - targetVeg.yIndex) == 1;
+    }
+    #endregion
 }
 
 public class MatchResult
