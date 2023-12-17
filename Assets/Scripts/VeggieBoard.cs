@@ -13,7 +13,7 @@ public class VeggieBoard : MonoBehaviour
     public float spacingX;
     public float spacingY;
     //getting a ref to veggies prefabs
-    public GameObject[] veggiePrefabs;
+    public GameObject[] veggiesPrefabs;
     // getting a ref collection nodes Board+GameObjs
     public Node[,] veggieBoard;
     public GameObject veggieBoardGO;
@@ -53,10 +53,10 @@ public class VeggieBoard : MonoBehaviour
                 }
                 else
                 {
-                    int randomIndex = Random.Range(0, veggiePrefabs.Length);
+                    int randomIndex = Random.Range(0, veggiesPrefabs.Length);
 
-                    GameObject veggie = Instantiate(veggiePrefabs[randomIndex], position, Quaternion.identity);
-                    veggie.GetComponent<Veggie>().SetIndicies(x, y);
+                    GameObject veggie = Instantiate(veggiesPrefabs[randomIndex], position, Quaternion.identity);
+                    veggie.GetComponent<Veggies>().SetIndicies(x, y);
                     veggieBoard[x, y] = new Node(true, veggie);
                 }
             }
@@ -77,7 +77,7 @@ public class VeggieBoard : MonoBehaviour
         Debug.Log("Checking Board");
         bool hasMatched = false;
 
-        List<Veggie> veggiesToRemove = new();
+        List<Veggies> veggiesToRemove = new();
 
         for (int x = 0; x < width; x++)
         {
@@ -87,7 +87,7 @@ public class VeggieBoard : MonoBehaviour
                 if (veggieBoard[x, y].isUsable)
                 {
                     //then proceed to get potion class in node
-                    Veggie veggie = veggieBoard[x, y].veggie.GetComponent<Veggie>();
+                    Veggies veggie = veggieBoard[x, y].veg.GetComponent<Veggies>();
 
                     //ensure its not matched
                     if (!veggie.isMatched)
@@ -100,7 +100,7 @@ public class VeggieBoard : MonoBehaviour
                         {
                             veggiesToRemove.AddRange(matchedVeggies.connectedVeggies);
 
-                            foreach (Veggie veg in matchedVeggies.connectedVeggies)
+                            foreach (Veggies veg in matchedVeggies.connectedVeggies)
                                 veg.isMatched = true;
 
                             hasMatched = true;
@@ -115,9 +115,9 @@ public class VeggieBoard : MonoBehaviour
 
 
         //IsConnected
-    MatchResult IsConnected(Veggie veggie)
+    MatchResult IsConnected(Veggies veggie)
     {
-        List<Veggie> connectedVeggies = new();
+        List<Veggies> connectedVeggies = new();
         VegType vegType = veggie.veggiesType;
 
         connectedVeggies.Add(veggie);
@@ -192,7 +192,7 @@ public class VeggieBoard : MonoBehaviour
 
 
     //CheckDirection
-    void CheckDirection(Veggie veg, Vector2Int direction, List<Veggie> connectedVeggies)
+    void CheckDirection(Veggies veg, Vector2Int direction, List<Veggies> connectedVeggies)
     {
         VegType vegType = veg.veggiesType;
         int x = veg.xIndex + direction.x;
@@ -203,7 +203,7 @@ public class VeggieBoard : MonoBehaviour
         {
             if (veggieBoard[x, y].isUsable)
             {
-                Veggie neighbourVeggie = veggieBoard[x, y].veggie.GetComponent<Veggie>();
+                Veggies neighbourVeggie = veggieBoard[x, y].veg.GetComponent<Veggies>();
 
                 //does our potionType Match? it must also not be matched
                 if (!neighbourVeggie.isMatched && neighbourVeggie.veggiesType == vegType)
@@ -232,7 +232,7 @@ public class VeggieBoard : MonoBehaviour
 
 public class MatchResult
 {
-    public List<Veggie> connectedVeggies;
+    public List<Veggies> connectedVeggies;
     public MatchDirection direction;
 }
 

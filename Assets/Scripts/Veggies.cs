@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Veggie : MonoBehaviour
+public class Veggies : MonoBehaviour
 {
 
     public VegType veggiesType;
@@ -16,7 +16,7 @@ public class Veggie : MonoBehaviour
     
     public bool isMoving;
 
-    public Veggie(int _x, int _y)
+    public Veggies(int _x, int _y)
     {
         xIndex = _x;
         yIndex = _y;
