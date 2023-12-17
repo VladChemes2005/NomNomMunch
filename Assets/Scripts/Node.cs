@@ -6,11 +6,11 @@ public class Node : MonoBehaviour
 {
     public bool isUsable;
 
-    public GameObject veg;
+    public GameObject veggie;
 
-    public Node(bool _isUsable, GameObject _veg)
+    public Node(bool _isUsable, GameObject _veggie)
     {
         isUsable = _isUsable;
-        veg = _veg;
+        veggie = _veggie;
     }
 }

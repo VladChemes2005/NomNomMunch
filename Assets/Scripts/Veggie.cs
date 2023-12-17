@@ -2,10 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Veggies : MonoBehaviour
+public class Veggie : MonoBehaviour
 {
 
-    public VegType veggiesType;
+    public VeggieType veggiesType;
         
     public int xIndex;
     public int yIndex;
@@ -16,7 +16,7 @@ public class Veggies : MonoBehaviour
     
     public bool isMoving;
 
-    public Veggies(int _x, int _y)
+    public Veggie(int _x, int _y)
     {
         xIndex = _x;
         yIndex = _y;
@@ -41,7 +41,7 @@ public class Veggies : MonoBehaviour
     }
 }
 
-public enum VegType
+public enum VeggieType
 {
     cabbage,
     carrot,
