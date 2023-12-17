@@ -22,6 +22,12 @@ public class Veggies : MonoBehaviour
         yIndex = _y;
     }
     
+    public void SetIndicies(int _x, int _y)
+    {
+        xIndex = _x;
+        yIndex = _y;
+    }
+    
     // Start is called before the first frame update
     void Start()
     {
