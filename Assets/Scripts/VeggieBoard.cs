@@ -32,11 +32,19 @@ public class VeggieBoard : MonoBehaviour
     [SerializeField]
     private bool isProcessingMove;
 
+    [SerializeField]
+    List<Veggie> veggiesToRemove = new();
+
+    public GameManager gameManager;
+
     //layoutArray
     public ArrayLayout arrayLayout;
     
     //public static of board
     public static VeggieBoard Instance;
+
+    public int streak = 1;
+    public int pieceValue = 200;
 
     private void Awake()
     {
@@ -46,6 +54,7 @@ public class VeggieBoard : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        gameManager = FindObjectOfType<GameManager>();
         InitializeBoard();
     }
 
@@ -84,14 +93,14 @@ public class VeggieBoard : MonoBehaviour
                 }
             }
         }
-        if (CheckBoard(false))
+        if (CheckBoard())
         {
-            Debug.Log("We have matches let's re-create the board");
+            //Debug.Log("We have matches let's re-create the board");
             InitializeBoard();
         }
         else
         {
-            Debug.Log("There are no matches, it's time to start the game!");
+            //Debug.Log("There are no matches, it's time to start the game!");
         }
     }
 
@@ -110,19 +119,23 @@ public class VeggieBoard : MonoBehaviour
                 }
 
                 Veggie veggie = hit.collider.gameObject.GetComponent<Veggie>();
-                Debug.Log($"I have a clicked a veggie it is: a {veggie.gameObject}");
+                //Debug.Log($"I have a clicked a veggie it is: a {veggie.gameObject}");
 
                 SelectVeggie(veggie);
             }
         }
     }
 
-    public bool CheckBoard(bool _takeAction)
+    public bool CheckBoard()
     {
-        Debug.Log("Checking Board");
+        if (gameManager.IsGameEnded)
+        {
+            return false;
+        }
+        //Debug.Log("Checking Board");
         bool hasMatched = false;
 
-        List<Veggie> veggiesToRemove = new();
+        veggiesToRemove.Clear();
 
         foreach (Node nodeVeggie in veggieBoard)
         {
@@ -164,21 +177,25 @@ public class VeggieBoard : MonoBehaviour
                 }
             }
         }
-        if (_takeAction)
-        {
-            foreach (Veggie veggieToRemove in veggiesToRemove)
-            {
-                veggieToRemove.isMatched = false;
-            }
-
-            RemoveAndRefill(veggiesToRemove);
-
-            if (CheckBoard(false))
-            {
-                CheckBoard(true);
-            }
-        }
         return hasMatched;
+    }
+
+    public IEnumerator ProcessTurnOnMatchesBoard(bool substractMoves)
+    {
+        foreach (Veggie veggieToRemove in veggiesToRemove)
+        {
+            veggieToRemove.isMatched = false;
+        }
+        RemoveAndRefill(veggiesToRemove);
+        gameManager.ProcessTurn(veggiesToRemove.Count*pieceValue*streak, substractMoves);
+        yield return new WaitForSeconds(0.4f);
+
+        if (CheckBoard())
+        {
+            streak += 1;
+            StartCoroutine(ProcessTurnOnMatchesBoard(false));
+        }
+        streak = 1;
     }
 
     #region Cascading Veggies
@@ -205,7 +222,7 @@ public class VeggieBoard : MonoBehaviour
             {
                 if (veggieBoard[x, y].veggie == null && veggieBoard[x, y].isUsable)
                 {
-                    Debug.Log("The location X: " + x + " Y: " + y + " is empty, attempting to refill it.");
+                    //Debug.Log("The location X: " + x + " Y: " + y + " is empty, attempting to refill it.");
                     RefillVeggie(x, y);
                 }
             }
@@ -222,7 +239,7 @@ public class VeggieBoard : MonoBehaviour
         while (y + yOffset < height && veggieBoard[x, y + yOffset].veggie == null)
         {
             //increment y offset
-            Debug.Log("The veggie above me is null, but i'm not at the top of the board yet, so add to my yOffset and try again. Current Offset is: " + yOffset + " I'm about to add 1.");
+            //Debug.Log("The veggie above me is null, but i'm not at the top of the board yet, so add to my yOffset and try again. Current Offset is: " + yOffset + " I'm about to add 1.");
             yOffset++;
         }
 
@@ -236,7 +253,7 @@ public class VeggieBoard : MonoBehaviour
 
             //Move it to the correct location
             Vector3 targetPos = new Vector3(x - spacingX, y - spacingY, veggieAbove.transform.position.z);
-            Debug.Log("I've found a veggie when refilling the board and it was in the location: [" + x + "," + (y + yOffset) + "] we have moved it to the location: [" + x + "," + y + "]");
+            //Debug.Log("I've found a veggie when refilling the board and it was in the location: [" + x + "," + (y + yOffset) + "] we have moved it to the location: [" + x + "," + y + "]");
             //Move to location
             veggieAbove.MoveToTarget(targetPos);
             //update incidices
@@ -250,7 +267,7 @@ public class VeggieBoard : MonoBehaviour
         //if we've hit the top of the board without finding a veggie
         if (y + yOffset == height)
         {
-            Debug.Log("I've reached the top of the board without finding a veggie");
+            //Debug.Log("I've reached the top of the board without finding a veggie");
             SpawnVeggieAtTop(x);
         }
     }
@@ -264,7 +281,7 @@ public class VeggieBoard : MonoBehaviour
             return;
         }
         int locationToMoveTo = 7 - index;
-        Debug.Log("About to spawn a veggie, ideally i'd like to put it in the index of: " + index);
+        //Debug.Log("About to spawn a veggie, ideally i'd like to put it in the index of: " + index);
         int randomIndex = Random.Range(0, veggiesPrefabs.Length);
         GameObject newVeggie = Instantiate(veggiesPrefabs[randomIndex], new Vector2(x - spacingX, height - spacingY), Quaternion.identity);
         newVeggie.transform.SetParent(veggieParent.transform);
@@ -310,7 +327,7 @@ public class VeggieBoard : MonoBehaviour
                 //do we have 2 or more veggies that have been matched against this current veggie.
                 if (extraConnectedVeggies.Count >=2)
                 {
-                    Debug.Log("I have a super Horizontal Match");
+                    //Debug.Log("I have a super Horizontal Match");
                     extraConnectedVeggies.AddRange(_matchedResults.connectedVeggies);
 
                     //return our super match
@@ -341,7 +358,7 @@ public class VeggieBoard : MonoBehaviour
                 //do we have 2 or more veggies that have been matched against this current veggie.
                 if (extraConnectedVeggies.Count >=2)
                 {
-                    Debug.Log("I have a super Vertical Match");
+                    //Debug.Log("I have a super Vertical Match");
                     extraConnectedVeggies.AddRange(_matchedResults.connectedVeggies);
                     //return our super match
                     return new MatchResult
@@ -376,7 +393,7 @@ public class VeggieBoard : MonoBehaviour
         //have we made a 3 match? (Horizontal Match)
         if (connectedVeggies.Count == 3)
         {
-            Debug.Log("I have a normal horizontal match, the color of my match is: " + connectedVeggies[0].veggiesType);
+            //Debug.Log("I have a normal horizontal match, the color of my match is: " + connectedVeggies[0].veggiesType);
 
             return new MatchResult
             {
@@ -387,7 +404,7 @@ public class VeggieBoard : MonoBehaviour
         //checking for more than 3 (Long horizontal Match)
         else if (connectedVeggies.Count > 3)
         {
-            Debug.Log("I have a Long horizontal match, the color of my match is: " + connectedVeggies[0].veggiesType);
+            //Debug.Log("I have a Long horizontal match, the color of my match is: " + connectedVeggies[0].veggiesType);
 
             return new MatchResult
             {
@@ -408,7 +425,7 @@ public class VeggieBoard : MonoBehaviour
         //have we made a 3 match? (Vertical Match)
         if (connectedVeggies.Count == 3)
         {
-            Debug.Log("I have a normal vertical match, the color of my match is: " + connectedVeggies[0].veggiesType);
+            //Debug.Log("I have a normal vertical match, the color of my match is: " + connectedVeggies[0].veggiesType);
 
             return new MatchResult
             {
@@ -419,7 +436,7 @@ public class VeggieBoard : MonoBehaviour
         //checking for more than 3 (Long Vertical Match)
         else if (connectedVeggies.Count > 3)
         {
-            Debug.Log("I have a Long vertical match, the color of my match is: " + connectedVeggies[0].veggiesType);
+            //Debug.Log("I have a Long vertical match, the color of my match is: " + connectedVeggies[0].veggiesType);
 
             return new MatchResult
             {
@@ -557,9 +574,11 @@ public class VeggieBoard : MonoBehaviour
     {
         yield return new WaitForSeconds(0.2f);
 
-        bool hasMatch = CheckBoard(true);
-
-        if (!hasMatch)
+        if (CheckBoard())
+        {
+            StartCoroutine(ProcessTurnOnMatchesBoard(true));
+        }
+        else
         {
             DoSwap(currentVeg, targetVeg);
         }

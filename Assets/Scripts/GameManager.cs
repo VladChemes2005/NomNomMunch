@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System;
-using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCounters;
+//using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCounters;
 using UnityEngine.SceneManagement;
 using UnityEngine;
 using UnityEngine.UI;
@@ -23,22 +23,22 @@ public class EndGameRequirements
 
 public class GameManager : MonoBehaviour
 {
-    public static GameManager Instance;
+    //public static GameManager Instance;
     public EndGameRequirements requirements;
 
-    public int currentCounterValue;
     private float timerSeconds;
-    public int points;
-    public int currentGoal;
+    public int points = 0;
+    public int currentCounterValue;
 
-    public GameObject backgroundPanel;
+    /*public GameObject backgroundPanel;
     public GameObject victoryPanel;
-    public GameObject losePanel;
+    public GameObject losePanel;*/
     public GameObject movesLabel;
     public GameObject timeLabel;
     public Text counter;
+    public Text score;
 
-    public bool IsGameEnded;
+    public bool IsGameEnded = false;
 
     void Start()
     {
@@ -48,7 +48,6 @@ public class GameManager : MonoBehaviour
     public void Initialize()
     {
         currentCounterValue = requirements.counterValue;
-        currentGoal = requirements.goal;
         if (requirements.gameType == GameType.moves)
         {
             movesLabel.SetActive(true);
@@ -56,73 +55,79 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            timerSeconds = 1;
+            timerSeconds = currentCounterValue;
             movesLabel.SetActive(false);
             timeLabel.SetActive(true);
         }
         counter.text = $"{currentCounterValue}";
+        score.text = "0";
     }
 
-    public void ProcessTurn(int pointsToGain)
+    public void ProcessTurn(int pointsToGain, bool substractMoves)
     {
         points += pointsToGain;
 
-        if (requirements.gameType == GameType.moves)
+        if (requirements.gameType == GameType.moves && substractMoves)
         {
             currentCounterValue -= 1;
         }
 
-        if (points >= currentGoal && currentCounterValue == 0)
+    }
+
+    public bool checkGameState()
+    {
+        if (currentCounterValue == 0)
         {
-            IsGameEnded = true;
-            backgroundPanel.SetActive(true);
-            victoryPanel.SetActive(true);
-            return;
+            return true;
         }
         else
         {
-            IsGameEnded = false;
-            backgroundPanel.SetActive(true);
-            losePanel.SetActive(true);
-            return;
+            return false;
         }
     }
 
-    public void WinGame()
+    /*public void WinGame()
     {
-        SceneManager.LoadScene(0);
+        //SceneManager.LoadScene(0);
+        Debug.Log("WWWWIN");
     }
 
     public void LoseGame()
     {
-        SceneManager.LoadScene(0);
-    }
+        //SceneManager.LoadScene(0);
+        Debug.Log("Loooose");
+    }*/
 
     void Update()
     {
+        counter.text = $"{currentCounterValue}";
+        score.text = $"{points}";
+
         if (requirements.gameType == GameType.time && currentCounterValue > 0)
         {
             timerSeconds -= Time.deltaTime;
-
+            currentCounterValue = (int)timerSeconds;
         }
 
-        if (timerSeconds <= 0)
+        IsGameEnded = checkGameState();
+        
+        if (points >= requirements.goal && IsGameEnded)
         {
-            timerSeconds = 0;
-
-            if (points >= currentGoal)
-            {
-                IsGameEnded = true;
-                backgroundPanel.SetActive(true);
-                victoryPanel.SetActive(true);
-            }
-            else
-            {
-                IsGameEnded = true;
-                backgroundPanel.SetActive(true);
-                losePanel.SetActive(true);
-            }
+            IsGameEnded = true;
+            /*backgroundPanel.SetActive(true);
+            victoryPanel.SetActive(true);*/
+            Debug.Log("WWWWIN");
             enabled = false;
         }
+        else if (points < requirements.goal && IsGameEnded)
+        {
+            IsGameEnded = true;
+            /*backgroundPanel.SetActive(true);
+            losePanel.SetActive(true);*/
+            Debug.Log("Loooose");
+            enabled = false;
+        }
+            
+        
     }
 }
