@@ -21,8 +21,7 @@ public class VeggieBoard : MonoBehaviour
     //tiles underneath nodes
     public GameObject tilePrefab;
 
-    public List<GameObject> vegiesToDestroy = new();
-
+    public List<GameObject> veggiesToDestroy = new();
     public List<GameObject> tilesToDestroy = new();
 
     [SerializeField]
@@ -70,16 +69,15 @@ public class VeggieBoard : MonoBehaviour
                 else
                 {
                     int randomIndex = Random.Range(0, veggiesPrefabs.Length);
-
                     GameObject Tile = Instantiate(tilePrefab, position, Quaternion.identity);
                     veggieBoard[x, y] = new Node(false, Tile);
 
                     GameObject veggie = Instantiate(veggiesPrefabs[randomIndex], position, Quaternion.identity);
                     veggie.GetComponent<Veggie>().SetIndicies(x, y);
                     veggieBoard[x, y] = new Node(true, veggie);
-
+                    
                     tilesToDestroy.Add(Tile);
-                    vegiesToDestroy.Add(veggie);
+                    veggiesToDestroy.Add(veggie);
                 }
             }
         }
@@ -142,9 +140,10 @@ public class VeggieBoard : MonoBehaviour
 
                         if (matchedVeggies.connectedVeggies.Count >= 3)
                         {
-                            veggiesToRemove.AddRange(matchedVeggies.connectedVeggies);
+                            MatchResult superMatchedVeggies = SuperMatch(matchedVeggies);
+                            veggiesToRemove.AddRange(superMatchedVeggies.connectedVeggies);
 
-                            foreach (Veggie veg in matchedVeggies.connectedVeggies)
+                            foreach (Veggie veg in superMatchedVeggies.connectedVeggies)
                                 veg.isMatched = true;
 
                             hasMatched = true;
@@ -157,7 +156,74 @@ public class VeggieBoard : MonoBehaviour
         return hasMatched;
     }
 
+private MatchResult SuperMatch(MatchResult _matchedResults)
+    {
+        //if we have a horizontal or long horizontal match
+        if (_matchedResults.direction == MatchDirection.Horizontal || _matchedResults.direction == MatchDirection.LongHorizontal)
+        {
+            //for each potion...
+            foreach (Veggie veg in _matchedResults.connectedVeggies)
+            {
+                List<Veggie> extraConnectedVeggies = new();
+                //check up
+                CheckDirection(veg, new Vector2Int(0, 1), extraConnectedVeggies);
+                //check down
+                CheckDirection(veg, new Vector2Int(0, -1), extraConnectedVeggies);
 
+                //do we have 2 or more veggies that have been matched against this current veggie.
+                if (extraConnectedVeggies.Count >=2)
+                {
+                    Debug.Log("I have a super Horizontal Match");
+                    extraConnectedVeggies.AddRange(_matchedResults.connectedVeggies);
+
+                    //return our super match
+                    return new MatchResult
+                    {
+                        connectedVeggies = extraConnectedVeggies,
+                        direction = MatchDirection.Super
+                    };
+                }
+            }
+            //we didn't have a super match, so return our normal match
+            return new MatchResult
+            {
+                connectedVeggies = _matchedResults.connectedVeggies,
+                direction = MatchDirection.Super
+            };
+        }
+        else if (_matchedResults.direction == MatchDirection.Vertical || _matchedResults.direction == MatchDirection.LongVertical)
+        {
+            //for each potion...
+            foreach (Veggie veg in _matchedResults.connectedVeggies)
+            {
+                List<Veggie> extraConnectedVeggies = new();
+                //check right
+                CheckDirection(veg, new Vector2Int(1, 0), extraConnectedVeggies);
+                //check left
+                CheckDirection(veg, new Vector2Int(-1, 0), extraConnectedVeggies);
+                //do we have 2 or more veggies that have been matched against this current veggie.
+                if (extraConnectedVeggies.Count >=2)
+                {
+                    Debug.Log("I have a super Vertical Match");
+                    extraConnectedVeggies.AddRange(_matchedResults.connectedVeggies);
+                    //return our super match
+                    return new MatchResult
+                    {
+                        connectedVeggies = extraConnectedVeggies,
+                        direction = MatchDirection.Super
+                    };
+                }
+            }
+            //we didn't have a super match, so return our normal match
+            return new MatchResult
+            {
+                connectedVeggies = _matchedResults.connectedVeggies,
+                direction = MatchDirection.Super
+            };
+        }
+        //this shouldn't be possible, but a null return is required so the method is valid.
+        return null;
+    }
     //IsConnected
     MatchResult IsConnected(Veggie veggie)
     {
@@ -274,17 +340,15 @@ public class VeggieBoard : MonoBehaviour
     //destroy veggies
     private void DestroyVeggies()
     {
-        if (vegiesToDestroy != null)
+        if (veggiesToDestroy != null)
         {
-            foreach (GameObject veg in vegiesToDestroy)
+            foreach (GameObject veg in veggiesToDestroy)
             {
                 Destroy(veg);
             }
-            vegiesToDestroy.Clear();
+            veggiesToDestroy.Clear();
         }
     }
-
-
     private void DestroyBGTiles()
     {
         if (tilesToDestroy != null)
@@ -296,7 +360,6 @@ public class VeggieBoard : MonoBehaviour
             tilesToDestroy.Clear();
         }
     }
-
     //select veggies
     private void SelectVeggie(Veggie veg)
     {
