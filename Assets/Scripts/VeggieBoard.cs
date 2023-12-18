@@ -203,7 +203,7 @@ public class VeggieBoard : MonoBehaviour
         {
             for (int y = 0; y < height; y++)
             {
-                if (veggieBoard[x, y].veggie == null)
+                if (veggieBoard[x, y].veggie == null && veggieBoard[x, y].isUsable)
                 {
                     Debug.Log("The location X: " + x + " Y: " + y + " is empty, attempting to refill it.");
                     RefillVeggie(x, y);
@@ -259,6 +259,10 @@ public class VeggieBoard : MonoBehaviour
     private void SpawnVeggieAtTop(int x)
     {
         int index = FindIndexOfLowestNull(x);
+        if(index == 99)
+        {
+            return;
+        }
         int locationToMoveTo = 7 - index;
         Debug.Log("About to spawn a veggie, ideally i'd like to put it in the index of: " + index);
         int randomIndex = Random.Range(0, veggiesPrefabs.Length);
@@ -279,7 +283,7 @@ public class VeggieBoard : MonoBehaviour
         int lowestNull = 99;
         for (int y = 6; y >= 0; y--)
         {
-            if (veggieBoard[x, y].veggie == null)
+            if (veggieBoard[x, y].veggie == null && veggieBoard[x, y].isUsable)
             {
                 lowestNull = y;
             }
