@@ -387,7 +387,6 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1041128981}
   - {fileID: 1498682299}
   - {fileID: 806031720}
   - {fileID: 205904458}
@@ -541,7 +540,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -3.602127, y: -1.508255}
+  m_AnchoredPosition: {x: -3.63, y: 1.27}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1041128980
@@ -560,7 +559,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1041128981
 Transform:
   m_ObjectHideFlags: 0
@@ -570,11 +569,11 @@ Transform:
   m_GameObject: {fileID: 1041128980}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 39.878872, y: -1.4858218, z: -4772.9233}
-  m_LocalScale: {x: 53.05, y: 53.05, z: 53.05}
+  m_LocalPosition: {x: 0.75172234, y: -0.02800795, z: 0.029720265}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 932388048}
+  m_Father: {fileID: 1498682299}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1041128982
 MonoBehaviour:
@@ -583,24 +582,21 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1041128980}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 556409d3e87662946a735414c4b58361, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   requirements:
     gameType: 0
-    counterValue: 200
+    counterValue: 5
     goal: 10000
-  currentCounterValue: 0
   points: 0
-  currentGoal: 0
-  backgroundPanel: {fileID: 806031719}
-  victoryPanel: {fileID: 1477857469}
-  losePanel: {fileID: 333063249}
+  currentCounterValue: 0
   movesLabel: {fileID: 2092502554}
   timeLabel: {fileID: 1040403751}
-  counter: {fileID: 1417309358}
+  counter: {fileID: 1049436314}
+  score: {fileID: 1417309358}
   IsGameEnded: 0
 --- !u!1 &1049436312
 GameObject:
@@ -636,7 +632,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -3.61, y: -2.1}
+  m_AnchoredPosition: {x: -3.75, y: 0.68}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1049436314
@@ -856,7 +852,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -3.602127, y: 0.15056038}
+  m_AnchoredPosition: {x: -3.63, y: -0.14}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1477857469
@@ -900,7 +896,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1498682299}
   - component: {fileID: 1498682298}
-  - component: {fileID: 1498682300}
   m_Layer: 0
   m_Name: Board
   m_TagString: Untagged
@@ -948,6 +943,8 @@ MonoBehaviour:
     - row: 00000000000000
     - row: 00000000000000
     - row: 01000000000001
+  streak: 1
+  pieceValue: 200
 --- !u!4 &1498682299
 Transform:
   m_ObjectHideFlags: 0
@@ -960,35 +957,10 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: -4774.5}
   m_LocalScale: {x: 53.05, y: 53.05, z: 53.05}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1041128981}
   m_Father: {fileID: 932388048}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1498682300
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1498682297}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 556409d3e87662946a735414c4b58361, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  requirements:
-    gameType: 0
-    counterValue: 200
-    goal: 10000
-  currentCounterValue: 0
-  points: 0
-  currentGoal: 0
-  backgroundPanel: {fileID: 806031719}
-  victoryPanel: {fileID: 1477857469}
-  losePanel: {fileID: 333063249}
-  movesLabel: {fileID: 2092502554}
-  timeLabel: {fileID: 1040403751}
-  counter: {fileID: 1417309358}
-  IsGameEnded: 0
 --- !u!1 &2092502554
 GameObject:
   m_ObjectHideFlags: 0
@@ -1065,7 +1037,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -3.602127, y: -0.6976967}
+  m_AnchoredPosition: {x: -3.7, y: 1.27}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1660057539 &9223372036854775807
