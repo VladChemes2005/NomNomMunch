@@ -22,6 +22,8 @@ public class VeggieBoard : MonoBehaviour
     public GameObject tilePrefab;
 
     public List<GameObject> veggiesToDestroy = new();
+    public GameObject veggieParent;
+
     public List<GameObject> tilesToDestroy = new();
 
     [SerializeField]
@@ -73,6 +75,7 @@ public class VeggieBoard : MonoBehaviour
                     veggieBoard[x, y] = new Node(false, Tile);
 
                     GameObject veggie = Instantiate(veggiesPrefabs[randomIndex], position, Quaternion.identity);
+                    veggie.transform.SetParent(veggieParent.transform);
                     veggie.GetComponent<Veggie>().SetIndicies(x, y);
                     veggieBoard[x, y] = new Node(true, veggie);
                     
@@ -81,7 +84,7 @@ public class VeggieBoard : MonoBehaviour
                 }
             }
         }
-        if (CheckBoard())
+        if (CheckBoard(false))
         {
             Debug.Log("We have matches let's re-create the board");
             InitializeBoard();
@@ -114,12 +117,21 @@ public class VeggieBoard : MonoBehaviour
         }
     }
 
-    public bool CheckBoard()
+    public bool CheckBoard(bool _takeAction)
     {
         Debug.Log("Checking Board");
         bool hasMatched = false;
 
         List<Veggie> veggiesToRemove = new();
+
+        foreach (Node nodeVeggie in veggieBoard)
+        {
+            if (nodeVeggie.veggie != null)
+            {
+                nodeVeggie.veggie.GetComponent<Veggie>().isMatched = false;
+            }
+        }
+
 
         for (int x = 0; x < width; x++)
         {
@@ -152,11 +164,132 @@ public class VeggieBoard : MonoBehaviour
                 }
             }
         }
+        if (_takeAction)
+        {
+            foreach (Veggie veggieToRemove in veggiesToRemove)
+            {
+                veggieToRemove.isMatched = false;
+            }
 
+            RemoveAndRefill(veggiesToRemove);
+
+            if (CheckBoard(false))
+            {
+                CheckBoard(true);
+            }
+        }
         return hasMatched;
     }
 
-private MatchResult SuperMatch(MatchResult _matchedResults)
+    #region Cascading Veggies
+    //RemoveAndRefill
+    private void RemoveAndRefill(List<Veggie> _veggiesToRemove)
+    {
+        //Removing the veggie and clearing the board at that location
+        foreach (Veggie veggie in _veggiesToRemove)
+        {
+            //getting it's x and y indicies and storing them
+            int _xIndex = veggie.xIndex;
+            int _yIndex = veggie.yIndex;
+
+            //Destroy the veggie
+            Destroy(veggie.gameObject);
+
+            //Create a blank node on the veggie board.
+            veggieBoard[_xIndex, _yIndex] = new Node(true, null);
+        }
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                if (veggieBoard[x, y].veggie == null)
+                {
+                    Debug.Log("The location X: " + x + " Y: " + y + " is empty, attempting to refill it.");
+                    RefillVeggie(x, y);
+                }
+            }
+        }
+    }
+
+    //RefillVeggies
+    private void RefillVeggie(int x, int y)
+    {
+        //y offset
+        int yOffset = 1;
+
+        //while the cell above our current cell is null and we're below the height of the board
+        while (y + yOffset < height && veggieBoard[x, y + yOffset].veggie == null)
+        {
+            //increment y offset
+            Debug.Log("The veggie above me is null, but i'm not at the top of the board yet, so add to my yOffset and try again. Current Offset is: " + yOffset + " I'm about to add 1.");
+            yOffset++;
+        }
+
+        //we've either hit the top of the board or we found a veggie
+
+        if (y + yOffset < height && veggieBoard[x, y + yOffset].veggie != null)
+        {
+            //we`ve found a veggie
+
+            Veggie veggieAbove = veggieBoard[x, y + yOffset].veggie.GetComponent<Veggie>();
+
+            //Move it to the correct location
+            Vector3 targetPos = new Vector3(x - spacingX, y - spacingY, veggieAbove.transform.position.z);
+            Debug.Log("I've found a veggie when refilling the board and it was in the location: [" + x + "," + (y + yOffset) + "] we have moved it to the location: [" + x + "," + y + "]");
+            //Move to location
+            veggieAbove.MoveToTarget(targetPos);
+            //update incidices
+            veggieAbove.SetIndicies(x, y);
+            //update our potionBoard
+            veggieBoard[x, y] = veggieBoard[x, y + yOffset];
+            //set the location the potion came from to null
+            veggieBoard[x, y + yOffset] = new Node(true, null);
+        }
+
+        //if we've hit the top of the board without finding a veggie
+        if (y + yOffset == height)
+        {
+            Debug.Log("I've reached the top of the board without finding a veggie");
+            SpawnVeggieAtTop(x);
+        }
+    }
+
+    //SpawnVeggieAtTop()
+    private void SpawnVeggieAtTop(int x)
+    {
+        int index = FindIndexOfLowestNull(x);
+        int locationToMoveTo = 7 - index;
+        Debug.Log("About to spawn a veggie, ideally i'd like to put it in the index of: " + index);
+        int randomIndex = Random.Range(0, veggiesPrefabs.Length);
+        GameObject newVeggie = Instantiate(veggiesPrefabs[randomIndex], new Vector2(x - spacingX, height - spacingY), Quaternion.identity);
+        newVeggie.transform.SetParent(veggieParent.transform);
+        //set indicies
+        newVeggie.GetComponent<Veggie>().SetIndicies(x, index);
+        //set it on the veggie board
+        veggieBoard[x, index] = new Node(true, newVeggie);
+        //move it to that location
+        Vector3 targetPosition = new Vector3(newVeggie.transform.position.x, newVeggie.transform.position.y - locationToMoveTo, newVeggie.transform.position.z);
+        newVeggie.GetComponent<Veggie>().MoveToTarget(targetPosition);
+    }
+
+    //FindIndexOfLowestNull(x)
+    private int FindIndexOfLowestNull(int x)
+    {
+        int lowestNull = 99;
+        for (int y = 6; y >= 0; y--)
+        {
+            if (veggieBoard[x, y].veggie == null)
+            {
+                lowestNull = y;
+            }
+        }
+        return lowestNull;
+    }
+
+    #endregion
+
+    private MatchResult SuperMatch(MatchResult _matchedResults)
     {
         //if we have a horizontal or long horizontal match
         if (_matchedResults.direction == MatchDirection.Horizontal || _matchedResults.direction == MatchDirection.LongHorizontal)
@@ -420,7 +553,7 @@ private MatchResult SuperMatch(MatchResult _matchedResults)
     {
         yield return new WaitForSeconds(0.2f);
 
-        bool hasMatch = CheckBoard();
+        bool hasMatch = CheckBoard(true);
 
         if (!hasMatch)
         {
