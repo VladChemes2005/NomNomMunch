@@ -23,6 +23,8 @@ public class VeggieBoard : MonoBehaviour
 
     public List<GameObject> vegiesToDestroy = new();
 
+    public List<GameObject> tilesToDestroy = new();
+
     [SerializeField]
     private Veggie selectedVeggie;
 
@@ -49,6 +51,7 @@ public class VeggieBoard : MonoBehaviour
     void InitializeBoard()
     {
         DestroyVeggies();
+        DestroyBGTiles();
 
         veggieBoard = new Node[width, height];
         
@@ -68,12 +71,14 @@ public class VeggieBoard : MonoBehaviour
                 {
                     int randomIndex = Random.Range(0, veggiesPrefabs.Length);
 
+                    GameObject Tile = Instantiate(tilePrefab, position, Quaternion.identity);
+                    veggieBoard[x, y] = new Node(false, Tile);
+
                     GameObject veggie = Instantiate(veggiesPrefabs[randomIndex], position, Quaternion.identity);
                     veggie.GetComponent<Veggie>().SetIndicies(x, y);
                     veggieBoard[x, y] = new Node(true, veggie);
-                    
-                    //GameObject Tile = Instantiate(tilePrefab, position, Quaternion.identity);
-                    //veggieBoard[x, y] = new Node(false, Tile);
+
+                    tilesToDestroy.Add(Tile);
                     vegiesToDestroy.Add(veggie);
                 }
             }
@@ -276,6 +281,19 @@ public class VeggieBoard : MonoBehaviour
                 Destroy(veg);
             }
             vegiesToDestroy.Clear();
+        }
+    }
+
+
+    private void DestroyBGTiles()
+    {
+        if (tilesToDestroy != null)
+        {
+            foreach (GameObject tile in tilesToDestroy)
+            {
+                Destroy(tile);
+            }
+            tilesToDestroy.Clear();
         }
     }
 
