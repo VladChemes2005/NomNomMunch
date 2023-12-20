@@ -90,6 +90,7 @@ public class VeggieBoard : MonoBehaviour
                     {
                         GameObject flipTile = Instantiate(flipTilePrefab, position, Quaternion.identity);
                         flipTile.transform.SetParent(flipTileParent.transform);
+                        flipTile.GetComponent<FlipTile>().SetIndicies(x, y);
                         veggieBoard[x, y] = new Node(false, flipTile);
                         flipTilesToDestroy.Add(flipTile);
                     }
@@ -219,20 +220,48 @@ public class VeggieBoard : MonoBehaviour
     //RemoveAndRefill
     private void RemoveAndRefill(List<Veggie> _veggiesToRemove)
     {
-        //Removing the veggie and clearing the board at that location
+        // Create a list to store flipTiles to remove
+        List<GameObject> flipTilesToRemove = new List<GameObject>();
+
+        // Removing the veggie and clearing the board at that location
         foreach (Veggie veggie in _veggiesToRemove)
         {
             //getting it's x and y indicies and storing them
             int _xIndex = veggie.xIndex;
             int _yIndex = veggie.yIndex;
 
+            // Check if there is a flipTile at the same position
+            GameObject flipTile = null;
+
+            // Iterate through the flipTilesToDestroy list to find the matching flipTile
+            foreach (GameObject ft in flipTilesToDestroy)
+            {
+                FlipTile flipTileComponent = ft.GetComponent<FlipTile>();
+                if (flipTileComponent.xIndex == _xIndex && flipTileComponent.yIndex == _yIndex)
+                {
+                    flipTile = ft;
+                    break;
+                }
+            }
+
+            if (flipTile != null)
+            {
+                // Add the flipTile to the list for removal
+                flipTilesToRemove.Add(flipTile);
+            }
+
             //Destroy the veggie
             Destroy(veggie.gameObject);
 
-            
-
             //Create a blank node on the veggie board.
             veggieBoard[_xIndex, _yIndex] = new Node(true, null);
+        }
+
+        // Remove the flipTiles at the matched positions
+        foreach (GameObject flipTileToRemove in flipTilesToRemove)
+        {
+            flipTilesToDestroy.Remove(flipTileToRemove);
+            Destroy(flipTileToRemove);
         }
 
         for (int x = 0; x < width; x++)
