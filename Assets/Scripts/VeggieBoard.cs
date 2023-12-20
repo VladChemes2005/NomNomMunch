@@ -14,17 +14,23 @@ public class VeggieBoard : MonoBehaviour
     public float spacingY;
     //getting a ref to veggies prefabs
     public GameObject[] veggiesPrefabs;
+    public List<GameObject> veggiesToDestroy = new();
+    public GameObject veggieParent;
     // getting a ref collection nodes Board+GameObjs
     public Node[,] veggieBoard;
     public GameObject veggieBoardGO;
     
     //tiles underneath nodes
     public GameObject tilePrefab;
-
-    public List<GameObject> veggiesToDestroy = new();
-    public GameObject veggieParent;
-
     public List<GameObject> tilesToDestroy = new();
+    public GameObject tileParent;
+
+    //flipTiles
+    public bool IsFlipMap;
+    public GameObject flipTilePrefab;
+    public List<GameObject> flipTilesToDestroy = new();
+    public GameObject flipTileParent;
+
 
     [SerializeField]
     private Veggie selectedVeggie;
@@ -62,6 +68,7 @@ public class VeggieBoard : MonoBehaviour
     {
         DestroyVeggies();
         DestroyBGTiles();
+        DestroyFlipTiles();
 
         veggieBoard = new Node[width, height];
         
@@ -79,16 +86,25 @@ public class VeggieBoard : MonoBehaviour
                 }
                 else
                 {
+                    if (IsFlipMap)
+                    {
+                        GameObject flipTile = Instantiate(flipTilePrefab, position, Quaternion.identity);
+                        flipTile.transform.SetParent(flipTileParent.transform);
+                        veggieBoard[x, y] = new Node(false, flipTile);
+                        flipTilesToDestroy.Add(flipTile);
+                    }
                     int randomIndex = Random.Range(0, veggiesPrefabs.Length);
-                    GameObject Tile = Instantiate(tilePrefab, position, Quaternion.identity);
-                    veggieBoard[x, y] = new Node(false, Tile);
+                    
+                    GameObject tile = Instantiate(tilePrefab, position, Quaternion.identity);
+                    tile.transform.SetParent(tileParent.transform);
+                    veggieBoard[x, y] = new Node(false, tile);
 
                     GameObject veggie = Instantiate(veggiesPrefabs[randomIndex], position, Quaternion.identity);
                     veggie.transform.SetParent(veggieParent.transform);
                     veggie.GetComponent<Veggie>().SetIndicies(x, y);
                     veggieBoard[x, y] = new Node(true, veggie);
                     
-                    tilesToDestroy.Add(Tile);
+                    tilesToDestroy.Add(tile);
                     veggiesToDestroy.Add(veggie);
                 }
             }
@@ -155,6 +171,7 @@ public class VeggieBoard : MonoBehaviour
                 {
                     //then proceed to get potion class in node
                     Veggie veggie = veggieBoard[x, y].veggie.GetComponent<Veggie>();
+                    
 
                     //ensure its not matched
                     if (!veggie.isMatched)
@@ -211,6 +228,8 @@ public class VeggieBoard : MonoBehaviour
 
             //Destroy the veggie
             Destroy(veggie.gameObject);
+
+            
 
             //Create a blank node on the veggie board.
             veggieBoard[_xIndex, _yIndex] = new Node(true, null);
@@ -512,6 +531,17 @@ public class VeggieBoard : MonoBehaviour
                 Destroy(tile);
             }
             tilesToDestroy.Clear();
+        }
+    }
+    private void DestroyFlipTiles()
+    {
+        if (flipTilesToDestroy != null)
+        {
+            foreach (GameObject flipTile in flipTilesToDestroy)
+            {
+                Destroy(flipTile);
+            }
+            flipTilesToDestroy.Clear();
         }
     }
     //select veggies
