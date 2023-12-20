@@ -123,6 +123,37 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &170789073
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 170789074}
+  m_Layer: 0
+  m_Name: FlipTileParent
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &170789074
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 170789073}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.077129394, y: 0.4149443, z: 0.5588308}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &205904457
 GameObject:
   m_ObjectHideFlags: 0
@@ -276,6 +307,37 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -10}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &732273788
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 732273789}
+  m_Layer: 0
+  m_Name: TileParent
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &732273789
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 732273788}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.077129394, y: 0.4149443, z: 0.5588308}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -590,9 +652,13 @@ MonoBehaviour:
   requirements:
     gameType: 0
     counterValue: 5
-    goal: 10000
+    goal: 2000
+    goalTile: 05000000
+    goalTileGoals: 0200000002000000
   points: 0
   currentCounterValue: 0
+  goalTile: 
+  goalTileGoals: 
   movesLabel: {fileID: 2092502554}
   timeLabel: {fileID: 1040403751}
   counter: {fileID: 1049436314}
@@ -925,11 +991,16 @@ MonoBehaviour:
   - {fileID: 1983282597259498752, guid: d4a727d5f3378454899e56b296043e01, type: 3}
   - {fileID: 1546948542748389291, guid: 24ea3707b558c594baf181acbde05740, type: 3}
   - {fileID: 21126340384429358, guid: bf4bff69b495964479686b9dc7ee2bbd, type: 3}
-  veggieBoardGO: {fileID: 1498682297}
-  tilePrefab: {fileID: 7248715495750755334, guid: 06d5e7e6b85f5554580d0945ee91b74f, type: 3}
   veggiesToDestroy: []
   veggieParent: {fileID: 1143571108}
+  veggieBoardGO: {fileID: 1498682297}
+  tilePrefab: {fileID: 7248715495750755334, guid: 06d5e7e6b85f5554580d0945ee91b74f, type: 3}
   tilesToDestroy: []
+  tileParent: {fileID: 732273788}
+  IsFlipMap: 1
+  flipTilePrefab: {fileID: 473563868245472644, guid: 09a0372cf8103384f8f8fcc1446a16e4, type: 3}
+  flipTilesToDestroy: []
+  flipTileParent: {fileID: 170789073}
   selectedVeggie: {fileID: 0}
   isProcessingMove: 0
   veggiesToRemove: []
@@ -1047,4 +1118,6 @@ SceneRoots:
   - {fileID: 519420032}
   - {fileID: 932388048}
   - {fileID: 1143571109}
+  - {fileID: 732273789}
+  - {fileID: 170789074}
   - {fileID: 1334096726}

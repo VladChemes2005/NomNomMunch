@@ -4,6 +4,17 @@ using UnityEngine;
 
 public class VeggieBoard : MonoBehaviour
 {
+    public int FindByElement(VeggieType[] array, VeggieType veggie)
+    {
+        for (int i = 0; i < array.Length; i++)
+        {
+            if (array[i] == veggie)
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
 
     //defining board size
     public int width = 7;
@@ -249,6 +260,15 @@ public class VeggieBoard : MonoBehaviour
                 // Add the flipTile to the list for removal
                 flipTilesToRemove.Add(flipTile);
             }
+
+
+            // Goal completion
+            var goalIndex = FindByElement(gameManager.goalTile, veggie.veggiesType);
+            if (goalIndex != -1)
+            {
+                gameManager.goalTileGoals[goalIndex] -= 1;
+            }
+
 
             //Destroy the veggie
             Destroy(veggie.gameObject);

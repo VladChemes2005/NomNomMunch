@@ -1,10 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using System;
-//using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCounters;
 using UnityEngine.SceneManagement;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Linq;
 
 public enum GameType
 {
@@ -18,17 +18,30 @@ public class EndGameRequirements
     public GameType gameType;
     public int counterValue;
     public int goal;
-
+    public VeggieType[] goalTile;
+    public int[] goalTileGoals;
 }
 
 public class GameManager : MonoBehaviour
 {
+    public bool IsZeroed(int[] array)
+    {
+        for (int i = 0; i < array.Length; i++)
+        {
+            if (array[i] > 0) { return false; }
+        }
+        return true;
+    }
+
     //public static GameManager Instance;
     public EndGameRequirements requirements;
 
     private float timerSeconds;
     public int points = 0;
     public int currentCounterValue;
+    public VeggieType[] goalTile;
+    public int[] goalTileGoals;
+
 
     /*public GameObject backgroundPanel;
     public GameObject victoryPanel;
@@ -48,6 +61,19 @@ public class GameManager : MonoBehaviour
     public void Initialize()
     {
         currentCounterValue = requirements.counterValue;
+        goalTileGoals = requirements.goalTileGoals;
+        goalTileGoals = (int[])goalTileGoals.Clone();
+        goalTile = requirements.goalTile;
+        goalTile = (VeggieType[])goalTile.Clone();
+
+        if (goalTileGoals.Length > goalTile.Length)
+        {
+            for (int i = goalTile.Length; i < goalTileGoals.Length; i++)
+            {
+                goalTileGoals[i] = 0;
+            }
+        }
+
         if (requirements.gameType == GameType.moves)
         {
             movesLabel.SetActive(true);
@@ -71,7 +97,6 @@ public class GameManager : MonoBehaviour
         {
             currentCounterValue -= 1;
         }
-
     }
 
     public bool checkGameState()
@@ -110,24 +135,25 @@ public class GameManager : MonoBehaviour
         }
 
         IsGameEnded = checkGameState();
-        
-        if (points >= requirements.goal && IsGameEnded)
+
+        if (points >= requirements.goal && IsGameEnded && IsZeroed(goalTileGoals))
         {
-            IsGameEnded = true;
+            //IsGameEnded = true;
             /*backgroundPanel.SetActive(true);
             victoryPanel.SetActive(true);*/
             Debug.Log("WWWWIN");
             enabled = false;
         }
-        else if (points < requirements.goal && IsGameEnded)
+        else if (points < requirements.goal && IsGameEnded && (!IsZeroed(goalTileGoals) || goalTileGoals.Length == 0))
         {
-            IsGameEnded = true;
+            //IsGameEnded = true;
             /*backgroundPanel.SetActive(true);
             losePanel.SetActive(true);*/
             Debug.Log("Loooose");
             enabled = false;
         }
-            
-        
+
+
     }
 }
+
