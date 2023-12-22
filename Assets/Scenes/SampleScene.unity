@@ -1348,6 +1348,19 @@ MonoBehaviour:
     - row: 00000000000000
     - row: 00000000000000
     - row: 01000000000001
+  iceArrayLayout:
+    rows:
+    - row: 00000000000000
+    - row: 00000000000000
+    - row: 00000001000000
+    - row: 00000101010000
+    - row: 00000001000000
+    - row: 00000000000000
+    - row: 00000000000000
+  icePrefab: {fileID: 2232568707201262306, guid: dfc899c05e5e0ce449c032064b2a5543, type: 3}
+  iceToDestroy: []
+  iceToRemove: []
+  iceParent: {fileID: 1893794592}
   streak: 1
   pieceValue: 200
 --- !u!4 &1498682299
@@ -1366,6 +1379,7 @@ Transform:
   - {fileID: 814826370}
   - {fileID: 1041128981}
   - {fileID: 1714522025}
+  - {fileID: 1893794593}
   - {fileID: 1143571109}
   - {fileID: 732273789}
   - {fileID: 170789074}
@@ -1495,6 +1509,37 @@ MonoBehaviour:
   currentHint: {fileID: 0}
   possibleMoves: []
   move: {fileID: 0}
+--- !u!1 &1893794592
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1893794593}
+  m_Layer: 0
+  m_Name: IceParent
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1893794593
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1893794592}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 1.3137442, y: 0.11552299, z: -82.86577}
+  m_LocalScale: {x: 1.8416586, y: 1.8416586, z: 1.8416586}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1498682299}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &2037643404
 PrefabInstance:
   m_ObjectHideFlags: 0
