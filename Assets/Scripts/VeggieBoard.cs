@@ -45,6 +45,9 @@ public class VeggieBoard : MonoBehaviour
     public GameObject flipTileParent;
 
 
+    public float energyLevel = 0f;
+    public float maxEnergy = 500f;
+    
     [SerializeField]
     public Veggie selectedVeggie;
 
@@ -300,10 +303,12 @@ public class VeggieBoard : MonoBehaviour
         {
             veggieToRemove.isMatched = false;
         }
+        HandleEnergyIncrease();
+        
         RemoveAndRefill(veggiesToRemove);
         gameManager.ProcessTurn(veggiesToRemove.Count*pieceValue*streak, substractMoves);
         yield return new WaitForSeconds(0.4f);
-
+        
         if (CheckBoard())
         {
             streak += 1;
@@ -366,8 +371,14 @@ public class VeggieBoard : MonoBehaviour
             }
         }
     }
-
-    public void Remove3x3(int startX, int startY)
+    
+    public List<Veggie> GetVeggiesToRemove()
+    {
+        return veggiesToRemove;
+    }
+    
+    public void 
+        Remove3x3(int startX, int startY)
     {
         RemoveVeggiesInDirection(startX, startY, 1, 0); // Horizontal
         RemoveVeggiesInDirection(startX, startY, 0, 1); // Vertical
@@ -402,7 +413,29 @@ public class VeggieBoard : MonoBehaviour
 
 
     #endregion
+    
+    #region Energy
+    public void HandleEnergyIncrease()
+    {
+        List<Veggie> veggiesToRemove = GetVeggiesToRemove();
 
+        int matchCount = veggiesToRemove.Count;
+
+        float amount = (matchCount >= 4) ? 5 * matchCount : 0;
+
+        IncreaseEnergy(amount);
+    }
+    
+    void IncreaseEnergy(float amount)
+    {
+        energyLevel += amount;
+        Debug.Log("Energy Level Increased: " + energyLevel);
+        //ensuring the energy level does not exceed the maximum
+        energyLevel = Mathf.Clamp(energyLevel, 0f, maxEnergy);
+    }
+    
+    #endregion
+    
     #region Cascading Veggies
         //RemoveAndRefill
     private void RemoveAndRefill(List<Veggie> _veggiesToRemove)
@@ -591,7 +624,7 @@ public class VeggieBoard : MonoBehaviour
         }
         else if (_matchedResults.direction == MatchDirection.Vertical || _matchedResults.direction == MatchDirection.LongVertical)
         {
-            //for each potion...
+            //for each veggie...
             foreach (Veggie veg in _matchedResults.connectedVeggies)
             {
                 List<Veggie> extraConnectedVeggies = new();
@@ -622,6 +655,7 @@ public class VeggieBoard : MonoBehaviour
         //this shouldn't be possible, but a null return is required so the method is valid.
         return null;
     }
+
     //IsConnected
     MatchResult IsConnected(Veggie veggie)
     {

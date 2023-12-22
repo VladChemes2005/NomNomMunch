@@ -452,7 +452,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bombType: 4
   veggieBoard: {fileID: 1498682298}
-  customCursor: {fileID: 0}
 --- !u!1 &932388047
 GameObject:
   m_ObjectHideFlags: 0
@@ -654,7 +653,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bombType: 2
-  customCursor: {fileID: 2800000, guid: 643fdde76145d4044bc2a80711c6a3ce, type: 3}
+  customCursor: {fileID: 0}
 --- !u!1 &1040403751
 GameObject:
   m_ObjectHideFlags: 0
@@ -1004,7 +1003,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bombType: 3
-  customCursor: {fileID: 2800000, guid: 40c4d8013b07d74448f1e373be0f935b, type: 3}
+  customCursor: {fileID: 0}
 --- !u!1001 &1185876135
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1104,7 +1103,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bombType: 1
-  customCursor: {fileID: 2800000, guid: d4fb462341f08ff44a0b886ee24c911b, type: 3}
+  customCursor: {fileID: 0}
 --- !u!1 &1334096723
 GameObject:
   m_ObjectHideFlags: 0
@@ -1332,13 +1331,14 @@ MonoBehaviour:
   flipTilePrefab: {fileID: 473563868245472644, guid: 09a0372cf8103384f8f8fcc1446a16e4, type: 3}
   flipTilesToDestroy: []
   flipTileParent: {fileID: 170789073}
+  energyLevel: 0
+  maxEnergy: 500
   selectedVeggie: {fileID: 0}
   isProcessingMove: 0
   veggiesToRemove: []
   gameManager: {fileID: 0}
   hintManager: {fileID: 0}
   buttonClickHandler: {fileID: 0}
-  customCursor: {fileID: 0}
   arrayLayout:
     rows:
     - row: 01000000000001
@@ -1490,7 +1490,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9941008507e782f4f9164dfa566d1f10, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hintDelay: 3
+  hintDelay: 0
   hintParticle: {fileID: 6222825155356241047, guid: f99a088f4c8ca904ca103b8440058d10, type: 3}
   currentHint: {fileID: 0}
   possibleMoves: []
@@ -1590,7 +1590,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bombType: 0
-  customCursor: {fileID: 2800000, guid: 8ebcab40873bd3a43978b18c00d23a6e, type: 3}
+  customCursor: {fileID: 0}
 --- !u!1 &2092502554
 GameObject:
   m_ObjectHideFlags: 0
