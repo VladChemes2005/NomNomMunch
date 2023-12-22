@@ -50,11 +50,14 @@ public class GameManager : MonoBehaviour
     public GameObject timeLabel;
     public Text counter;
     public Text score;
+    public VeggieBoard board;
+    public int boardFlipTileAmount;
 
     public bool IsGameEnded = false;
 
     void Start()
     {
+        board = FindObjectOfType<VeggieBoard>();
         Initialize();
     }
 
@@ -84,6 +87,11 @@ public class GameManager : MonoBehaviour
             timerSeconds = currentCounterValue;
             movesLabel.SetActive(false);
             timeLabel.SetActive(true);
+        }
+
+        if (board.IsFlipMap)
+        {
+            boardFlipTileAmount = board.flipTileAmount;
         }
         counter.text = $"{currentCounterValue}";
         score.text = "0";
@@ -128,6 +136,11 @@ public class GameManager : MonoBehaviour
         counter.text = $"{currentCounterValue}";
         score.text = $"{points}";
 
+        if (board.IsFlipMap)
+        {
+            boardFlipTileAmount = board.flipTileAmount;
+        }
+
         if (requirements.gameType == GameType.time && currentCounterValue > 0)
         {
             timerSeconds -= Time.deltaTime;
@@ -136,7 +149,7 @@ public class GameManager : MonoBehaviour
 
         IsGameEnded = checkGameState();
 
-        if (points >= requirements.goal && IsGameEnded && IsZeroed(goalTileGoals))
+        if (points >= requirements.goal && IsGameEnded && IsZeroed(goalTileGoals) && boardFlipTileAmount == 0)
         {
             //IsGameEnded = true;
             /*backgroundPanel.SetActive(true);
@@ -144,7 +157,7 @@ public class GameManager : MonoBehaviour
             Debug.Log("WWWWIN");
             enabled = false;
         }
-        else if (points < requirements.goal && IsGameEnded && (!IsZeroed(goalTileGoals) || goalTileGoals.Length == 0))
+        else if (points < requirements.goal && IsGameEnded && (!IsZeroed(goalTileGoals) || goalTileGoals.Length == 0 || boardFlipTileAmount == 0))
         {
             //IsGameEnded = true;
             /*backgroundPanel.SetActive(true);
