@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using Unity.Jobs.LowLevel.Unsafe;
 using UnityEngine;
 
 public class VeggieBoard : MonoBehaviour
@@ -44,15 +46,17 @@ public class VeggieBoard : MonoBehaviour
 
 
     [SerializeField]
-    private Veggie selectedVeggie;
+    public Veggie selectedVeggie;
 
     [SerializeField]
     private bool isProcessingMove;
 
     [SerializeField]
-    List<Veggie> veggiesToRemove = new();
+    public List<Veggie> veggiesToRemove = new();
 
     public GameManager gameManager;
+
+    public ButtonClickHandler buttonClickHandler;
 
     //layoutArray
     public ArrayLayout arrayLayout;
@@ -72,6 +76,7 @@ public class VeggieBoard : MonoBehaviour
     void Start()
     {
         gameManager = FindObjectOfType<GameManager>();
+        buttonClickHandler = FindObjectOfType<ButtonClickHandler>();
         InitializeBoard();
     }
 
@@ -82,9 +87,9 @@ public class VeggieBoard : MonoBehaviour
         DestroyFlipTiles();
 
         veggieBoard = new Node[width, height];
-        
-        spacingX = (float)(width - 1) / 2;
-        spacingY = (float)((height - 1) / 2) + 1;
+
+        spacingX = (float)(width - 1) / 2 - 2;
+        spacingY = (float)((height - 1) / 2 + 0.5);
 
         for (int y = 0; y < height; y++)
         {
@@ -139,7 +144,7 @@ public class VeggieBoard : MonoBehaviour
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit2D hit = Physics2D.Raycast(ray.origin, ray.direction);
 
-            if (hit.collider != null && hit.collider.gameObject.GetComponent<Veggie>())
+            if (hit.collider != null && hit.collider.gameObject.GetComponent<Veggie>() && buttonClickHandler.bombType == BombType.None)
             {
                 if (isProcessingMove)
                 {
@@ -150,6 +155,17 @@ public class VeggieBoard : MonoBehaviour
                 //Debug.Log($"I have a clicked a veggie it is: a {veggie.gameObject}");
 
                 SelectVeggie(veggie);
+            }
+            if (hit.collider != null && hit.collider.gameObject.GetComponent<UtilsButton>())
+            {
+                buttonClickHandler.bombType = hit.collider.gameObject.GetComponent<UtilsButton>().bombType;
+            }
+            if (hit.collider != null && hit.collider.gameObject.GetComponent<Veggie>() && buttonClickHandler.bombType != BombType.None)
+            {
+                Veggie veggie = hit.collider.gameObject.GetComponent<Veggie>();
+                selectedVeggie = veggie;
+                buttonClickHandler.ExecuteRemoveSelectedVeggie();
+                selectedVeggie = null;
             }
         }
     }
@@ -227,8 +243,99 @@ public class VeggieBoard : MonoBehaviour
         streak = 1;
     }
 
+    #region BOMBA
+    public void RemovePlusShape(int startX, int startY)
+    {
+        // Remove objects horizontally
+        for (int i = 0; i < width; i++)
+        {
+            if (veggieBoard[i, startY].veggie != null)
+            {
+                Veggie veggieToRemove = veggieBoard[i, startY].veggie.GetComponent<Veggie>();
+                veggiesToRemove.Add(veggieToRemove);
+
+                veggieToRemove.isMatched = true;
+                Destroy(veggieBoard[i, startY].veggie);
+                veggieBoard[i, startY] = new Node(true, null);
+            }
+        }
+
+        // Remove objects vertically
+        for (int j = 0; j < height; j++)
+        {
+            if (veggieBoard[startX, j].veggie != null)
+            {
+                Veggie veggieToRemove = veggieBoard[startX, j].veggie.GetComponent<Veggie>();
+                veggiesToRemove.Add(veggieToRemove);
+
+                veggieToRemove.isMatched = true;
+                Destroy(veggieBoard[startX, j].veggie);
+                veggieBoard[startX, j] = new Node(true, null);
+            }
+        }
+    }
+
+    public void RemoveSameType(int startX, int startY)
+    {
+        VeggieType veggieTypeToRemove = veggieBoard[startX, startY].veggie.GetComponent<Veggie>().veggiesType;
+
+        // Loop through the entire board
+        for (int i = 0; i < width; i++)
+        {
+            for (int j = 0; j < height; j++)
+            {
+                if (veggieBoard[i, j].veggie != null &&
+                    veggieBoard[i, j].veggie.GetComponent<Veggie>().veggiesType == veggieTypeToRemove)
+                {
+                    Veggie veggieToRemove = veggieBoard[i, j].veggie.GetComponent<Veggie>();
+                    veggiesToRemove.Add(veggieToRemove);
+
+                    veggieToRemove.isMatched = true;
+                    Destroy(veggieBoard[i, j].veggie);
+                    veggieBoard[i, j] = new Node(true, null);
+                }
+            }
+        }
+    }
+
+    public void Remove3x3(int startX, int startY)
+    {
+        RemoveVeggiesInDirection(startX, startY, 1, 0); // Horizontal
+        RemoveVeggiesInDirection(startX, startY, 0, 1); // Vertical
+        RemoveVeggiesInDirection(startX, startY, 1, 1); // Diagonal
+        RemoveVeggiesInDirection(startX, startY, 1, -1); // Anti-Diagonal
+    }
+
+    private void RemoveVeggiesInDirection(int startX, int startY, int deltaX, int deltaY)
+    {
+        // Loop through the specified direction
+        for (int i = -1; i <= 1; i++)
+        {
+            int x = startX + i * deltaX;
+            int y = startY + i * deltaY;
+
+            if (IsWithinBounds(x, y) && veggieBoard[x, y].veggie != null)
+            {
+                Veggie veggieToRemove = veggieBoard[x, y].veggie.GetComponent<Veggie>();
+                veggiesToRemove.Add(veggieToRemove);
+
+                veggieToRemove.isMatched = true;
+                Destroy(veggieBoard[x, y].veggie);
+                veggieBoard[x, y] = new Node(true, null);
+            }
+        }
+    }
+
+    private bool IsWithinBounds(int x, int y)
+    {
+        return x >= 0 && x < width && y >= 0 && y < height;
+    }
+
+
+    #endregion
+
     #region Cascading Veggies
-    //RemoveAndRefill
+        //RemoveAndRefill
     private void RemoveAndRefill(List<Veggie> _veggiesToRemove)
     {
         // Create a list to store flipTiles to remove
@@ -594,7 +701,7 @@ public class VeggieBoard : MonoBehaviour
         }
     }
     //select veggies
-    private void SelectVeggie(Veggie veg)
+    public void SelectVeggie(Veggie veg)
     {
         if (selectedVeggie == null)
         {
