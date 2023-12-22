@@ -1,14 +1,14 @@
 using UnityEngine.EventSystems;
 using UnityEngine;
 
-public class ButtonClickHandler : MonoBehaviour, IPointerClickHandler
+public class ButtonClickHandler : MonoBehaviour//, IPointerClickHandler
 {
     public BombType bombType = BombType.None;
     public VeggieBoard veggieBoard;
-    public Texture2D customCursor;
-    private bool isButtonClicked = false;
+    //public Texture2D customCursor;
+    //private bool isButtonClicked = false;
 
-    public bool IsButtonClicked => isButtonClicked;
+    /*public bool IsButtonClicked => isButtonClicked;
 
     public void OnPointerClick(PointerEventData eventData)
     {
@@ -20,7 +20,7 @@ public class ButtonClickHandler : MonoBehaviour, IPointerClickHandler
         //bombType = lastClickedButton.bombType;
 
         Debug.Log("Button Clicked!");
-    }
+    }*/
 
     // Public method to be called from other parts of your code
     public void ExecuteRemoveSelectedVeggie()

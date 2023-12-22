@@ -55,8 +55,11 @@ public class VeggieBoard : MonoBehaviour
     public List<Veggie> veggiesToRemove = new();
 
     public GameManager gameManager;
+    public HintManager hintManager;
 
     public ButtonClickHandler buttonClickHandler;
+
+    //public Texture2D customCursor;
 
     //layoutArray
     public ArrayLayout arrayLayout;
@@ -76,11 +79,12 @@ public class VeggieBoard : MonoBehaviour
     void Start()
     {
         gameManager = FindObjectOfType<GameManager>();
+        hintManager = FindObjectOfType<HintManager>();
         buttonClickHandler = FindObjectOfType<ButtonClickHandler>();
         InitializeBoard();
     }
 
-    void InitializeBoard()
+    public void InitializeBoard()
     {
         DestroyVeggies();
         DestroyBGTiles();
@@ -139,33 +143,48 @@ public class VeggieBoard : MonoBehaviour
 
     void Update()
     {
+        if(gameManager.IsGameEnded)
+        {
+            enabled = false;
+        }
         if (Input.GetMouseButtonDown(0))
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit2D hit = Physics2D.Raycast(ray.origin, ray.direction);
 
-            if (hit.collider != null && hit.collider.gameObject.GetComponent<Veggie>() && buttonClickHandler.bombType == BombType.None)
+            if (hit.collider != null)
             {
-                if (isProcessingMove)
+                if(hit.collider.gameObject.GetComponent<Veggie>() && buttonClickHandler.bombType == BombType.None)
                 {
-                    return;
+                    if (isProcessingMove)
+                    {
+                        return;
+                    }
+                    
+                    Veggie veggie = hit.collider.gameObject.GetComponent<Veggie>();
+                    //Debug.Log($"I have a clicked a veggie it is: a {veggie.gameObject}");
+
+                    SelectVeggie(veggie);
+                }
+                else if (hit.collider.gameObject.GetComponent<UtilsButton>())
+                {
+                    buttonClickHandler.bombType = hit.collider.gameObject.GetComponent<UtilsButton>().bombType;
+                    Debug.Log("Clicked a button");
+                    Cursor.SetCursor(hit.collider.gameObject.GetComponent<UtilsButton>().customCursor, Vector2.zero, CursorMode.Auto);
+                }
+                else if (hit.collider.gameObject.GetComponent<Veggie>() && buttonClickHandler.bombType != BombType.None)
+                {
+                    Veggie veggie = hit.collider.gameObject.GetComponent<Veggie>();
+                    selectedVeggie = veggie;
+                    buttonClickHandler.ExecuteRemoveSelectedVeggie();
+                    selectedVeggie = null;
                 }
 
-                Veggie veggie = hit.collider.gameObject.GetComponent<Veggie>();
-                //Debug.Log($"I have a clicked a veggie it is: a {veggie.gameObject}");
+            }
 
-                SelectVeggie(veggie);
-            }
-            if (hit.collider != null && hit.collider.gameObject.GetComponent<UtilsButton>())
+            if (hintManager.currentHint != null)
             {
-                buttonClickHandler.bombType = hit.collider.gameObject.GetComponent<UtilsButton>().bombType;
-            }
-            if (hit.collider != null && hit.collider.gameObject.GetComponent<Veggie>() && buttonClickHandler.bombType != BombType.None)
-            {
-                Veggie veggie = hit.collider.gameObject.GetComponent<Veggie>();
-                selectedVeggie = veggie;
-                buttonClickHandler.ExecuteRemoveSelectedVeggie();
-                selectedVeggie = null;
+                hintManager.DestroyHint();
             }
         }
     }
@@ -216,6 +235,56 @@ public class VeggieBoard : MonoBehaviour
                             foreach (Veggie veg in superMatchedVeggies.connectedVeggies)
                                 veg.isMatched = true;
 
+                            hasMatched = true;
+                        }
+                    }
+                }
+            }
+        }
+        return hasMatched;
+    }
+
+    public bool InvisibleCheck()
+    {
+        if (gameManager.IsGameEnded)
+        {
+            return false;
+        }
+        //Debug.Log("Checking Board");
+        bool hasMatched = false;
+
+        veggiesToRemove.Clear();
+
+        foreach (Node nodeVeggie in veggieBoard)
+        {
+            if (nodeVeggie.veggie != null)
+            {
+                nodeVeggie.veggie.GetComponent<Veggie>().isMatched = false;
+            }
+        }
+
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                //checking if position node is usable
+                if (veggieBoard[x, y].isUsable)
+                {
+                    //then proceed to get potion class in node
+                    Veggie veggie = veggieBoard[x, y].veggie.GetComponent<Veggie>();
+
+
+                    //ensure its not matched
+                    if (!veggie.isMatched)
+                    {
+                        //run some matching logic
+
+                        MatchResult matchedVeggies = IsConnected(veggie);
+
+                        if (matchedVeggies.connectedVeggies.Count >= 3)
+                        {
+                            MatchResult superMatchedVeggies = SuperMatch(matchedVeggies);
                             hasMatched = true;
                         }
                     }
@@ -776,6 +845,26 @@ public class VeggieBoard : MonoBehaviour
     {
         return Mathf.Abs(currentVeg.xIndex - targetVeg.xIndex) + Mathf.Abs(currentVeg.yIndex - targetVeg.yIndex) == 1;
     }
+    #endregion
+
+    #region
+
+    public void InvisibleSwap(Veggie currentVeg, Veggie targetVeg)
+    {
+        GameObject temp = veggieBoard[currentVeg.xIndex, currentVeg.yIndex].veggie;
+
+        veggieBoard[currentVeg.xIndex, currentVeg.yIndex].veggie = veggieBoard[targetVeg.xIndex, targetVeg.yIndex].veggie;
+        veggieBoard[targetVeg.xIndex, targetVeg.yIndex].veggie = temp;
+
+        int tempXIndex = currentVeg.xIndex;
+        int tempYIndex = currentVeg.yIndex;
+        currentVeg.xIndex = targetVeg.xIndex;
+        currentVeg.yIndex = targetVeg.yIndex;
+        targetVeg.xIndex = tempXIndex;
+        targetVeg.yIndex = tempYIndex;
+
+    }
+
     #endregion
 }
 

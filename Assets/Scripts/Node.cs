@@ -8,6 +8,11 @@ public class Node : MonoBehaviour
 
     public GameObject veggie;
 
+    public Node()
+    {
+
+    }
+
     public Node(bool _isUsable, GameObject _veggie)
     {
         isUsable = _isUsable;

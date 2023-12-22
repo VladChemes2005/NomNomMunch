@@ -56,13 +56,13 @@ public class HintManager : MonoBehaviour
                         board.InvisibleSwap(board.veggieBoard[x, y].veggie.GetComponent<Veggie>(), board.veggieBoard[x, y + 1].veggie.GetComponent<Veggie>());
                         /*Debug.Log($"{i} {y}");
                         Debug.Log($"{i} {y + 1}");*/
-                        var boardValid = board.CheckBoard();
+                        var boardValid = board.InvisibleCheck();
                         board.InvisibleSwap(board.veggieBoard[x, y + 1].veggie.GetComponent<Veggie>(), board.veggieBoard[x, y].veggie.GetComponent<Veggie>());
 
                         if (boardValid)
                         {
                             possibleMoves.Add(board.veggieBoard[x, y].veggie);
-                            Debug.Log($"{x} {y}");
+                            //Debug.Log($"{x} {y}");
                             return false;
                         }
                         
@@ -72,13 +72,13 @@ public class HintManager : MonoBehaviour
                     {
                         board.InvisibleSwap(board.veggieBoard[x, y].veggie.GetComponent<Veggie>(), board.veggieBoard[x + 1, y].veggie.GetComponent<Veggie>());
 
-                        var boardValid = board.CheckBoard();
+                        var boardValid = board.InvisibleCheck();
                         board.InvisibleSwap(board.veggieBoard[x + 1, y].veggie.GetComponent<Veggie>(), board.veggieBoard[x, y].veggie.GetComponent<Veggie>());
 
                         if (boardValid)
                         {
                             possibleMoves.Add(board.veggieBoard[x, y].veggie);
-                            Debug.Log($"{x} {y}");
+                            //Debug.Log($"{x} {y}");
                             return false;
                         }
                     }
@@ -90,13 +90,13 @@ public class HintManager : MonoBehaviour
                         board.InvisibleSwap(board.veggieBoard[x, y].veggie.GetComponent<Veggie>(), board.veggieBoard[x - 1, y].veggie.GetComponent<Veggie>());
                         /*Debug.Log($"{i} {y}");
                         Debug.Log($"{i} {y + 1}");*/
-                        var boardValid = board.CheckBoard();
+                        var boardValid = board.InvisibleCheck();
                         board.InvisibleSwap(board.veggieBoard[x - 1, y].veggie.GetComponent<Veggie>(), board.veggieBoard[x, y].veggie.GetComponent<Veggie>());
 
                         if (boardValid)
                         {
                             possibleMoves.Add(board.veggieBoard[x, y].veggie);
-                            Debug.Log($"{x} {y}");
+                            //Debug.Log($"{x} {y}");
                             return false;
                         }
 
@@ -109,13 +109,13 @@ public class HintManager : MonoBehaviour
                         board.InvisibleSwap(board.veggieBoard[x, y].veggie.GetComponent<Veggie>(), board.veggieBoard[x, y - 1].veggie.GetComponent<Veggie>());
                         /*Debug.Log($"{i} {y}");
                         Debug.Log($"{i} {y + 1}");*/
-                        var boardValid = board.CheckBoard();
+                        var boardValid = board.InvisibleCheck();
                         board.InvisibleSwap(board.veggieBoard[x, y - 1].veggie.GetComponent<Veggie>(), board.veggieBoard[x, y].veggie.GetComponent<Veggie>());
 
                         if (boardValid)
                         {
                             possibleMoves.Add(board.veggieBoard[x, y].veggie);
-                            Debug.Log($"{x} {y}");
+                            //Debug.Log($"{x} {y}");
                             return false;
                         }
 
