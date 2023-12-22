@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.Jobs.LowLevel.Unsafe;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class VeggieBoard : MonoBehaviour
 {
@@ -17,6 +18,27 @@ public class VeggieBoard : MonoBehaviour
         }
         return -1;
     }
+
+    public enum TileKind
+    {
+        Ice,
+        Bug
+    }
+
+    [System.Serializable]
+    public class TileType
+    {
+        public int x;
+        public int y;
+        public TileKind tileKind;
+    }
+    public TileType[] boardLayout;
+
+    
+
+    public GameObject icePrefab;
+    public List<GameObject> iceToDestroy = new();
+    public GameObject iceParent;
 
     //defining board size
     public int width = 7;
@@ -84,6 +106,7 @@ public class VeggieBoard : MonoBehaviour
         gameManager = FindObjectOfType<GameManager>();
         hintManager = FindObjectOfType<HintManager>();
         buttonClickHandler = FindObjectOfType<ButtonClickHandler>();
+        //GenerateIceTiles();
         InitializeBoard();
     }
 
@@ -92,6 +115,7 @@ public class VeggieBoard : MonoBehaviour
         DestroyVeggies();
         DestroyBGTiles();
         DestroyFlipTiles();
+        DestroyIce();
 
         veggieBoard = new Node[width, height];
 
@@ -103,12 +127,22 @@ public class VeggieBoard : MonoBehaviour
             for (int x = 0; x < width; x++)
             {
                 Vector2 position = new Vector2(x - spacingX, y - spacingY);
+                
                 if (arrayLayout.rows[y].row[x])
                 {
                     veggieBoard[x, y] = new Node(false, null);
                 }
                 else
                 {
+                    if (boardLayout.Any(tile => tile.x == x && tile.y == y && tile.tileKind == TileKind.Ice))
+                    {
+                        GameObject ice = Instantiate(icePrefab, position, Quaternion.identity);
+                        ice.transform.SetParent(iceParent.transform);
+                        ice.GetComponent<Ice>().SetIndicies(x, y);
+                        veggieBoard[x, y] = new Node(false, ice);
+                        iceToDestroy.Add(ice);
+                    }
+                    
                     if (IsFlipMap)
                     {
                         GameObject flipTile = Instantiate(flipTilePrefab, position, Quaternion.identity);
@@ -117,8 +151,9 @@ public class VeggieBoard : MonoBehaviour
                         veggieBoard[x, y] = new Node(false, flipTile);
                         flipTilesToDestroy.Add(flipTile);
                     }
+
                     int randomIndex = Random.Range(0, veggiesPrefabs.Length);
-                    
+
                     GameObject tile = Instantiate(tilePrefab, position, Quaternion.identity);
                     tile.transform.SetParent(tileParent.transform);
                     veggieBoard[x, y] = new Node(false, tile);
@@ -127,9 +162,10 @@ public class VeggieBoard : MonoBehaviour
                     veggie.transform.SetParent(veggieParent.transform);
                     veggie.GetComponent<Veggie>().SetIndicies(x, y);
                     veggieBoard[x, y] = new Node(true, veggie);
-                    
+
                     tilesToDestroy.Add(tile);
                     veggiesToDestroy.Add(veggie);
+                    
                 }
             }
         }
@@ -173,7 +209,7 @@ public class VeggieBoard : MonoBehaviour
                 {
                     buttonClickHandler.bombType = hit.collider.gameObject.GetComponent<UtilsButton>().bombType;
                     Debug.Log("Clicked a button");
-                    Cursor.SetCursor(hit.collider.gameObject.GetComponent<UtilsButton>().customCursor, Vector2.zero, CursorMode.Auto);
+                    //Cursor.SetCursor(hit.collider.gameObject.GetComponent<UtilsButton>().customCursor, Vector2.zero, CursorMode.Auto);
                 }
                 else if (hit.collider.gameObject.GetComponent<Veggie>() && buttonClickHandler.bombType != BombType.None)
                 {
@@ -433,11 +469,11 @@ public class VeggieBoard : MonoBehaviour
         //ensuring the energy level does not exceed the maximum
         energyLevel = Mathf.Clamp(energyLevel, 0f, maxEnergy);
     }
-    
+
     #endregion
-    
+
     #region Cascading Veggies
-        //RemoveAndRefill
+    //RemoveAndRefill
     private void RemoveAndRefill(List<Veggie> _veggiesToRemove)
     {
         // Create a list to store flipTiles to remove
@@ -803,6 +839,18 @@ public class VeggieBoard : MonoBehaviour
             flipTilesToDestroy.Clear();
         }
     }
+    private void DestroyIce()
+    {
+        if (iceToDestroy != null)
+        {
+            foreach (GameObject ice in iceToDestroy)
+            {
+                Destroy(ice);
+            }
+            iceToDestroy.Clear();
+        }
+    }
+
     //select veggies
     public void SelectVeggie(Veggie veg)
     {

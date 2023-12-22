@@ -654,6 +654,37 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bombType: 2
   customCursor: {fileID: 0}
+--- !u!1 &1007277728
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1007277729}
+  m_Layer: 0
+  m_Name: IceParent
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1007277729
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1007277728}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 1.002513, y: -0.35508728, z: -94.121315}
+  m_LocalScale: {x: 1.8416586, y: 1.8416586, z: 1.8416586}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1498682299}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1040403751
 GameObject:
   m_ObjectHideFlags: 0
@@ -1311,6 +1342,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a76a18e877479c4ba1d92d2fc58f7ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  boardLayout:
+  - x: 3
+    y: 3
+    tileKind: 0
+  - x: 1
+    y: 1
+    tileKind: 0
+  - x: 5
+    y: 5
+    tileKind: 0
+  icePrefab: {fileID: 6029892267882083453, guid: dfc899c05e5e0ce449c032064b2a5543, type: 3}
+  iceToDestroy: []
+  iceParent: {fileID: 1007277728}
   width: 7
   height: 7
   spacingX: 0
@@ -1368,6 +1412,7 @@ Transform:
   - {fileID: 1714522025}
   - {fileID: 1143571109}
   - {fileID: 732273789}
+  - {fileID: 1007277729}
   - {fileID: 170789074}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1490,7 +1535,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9941008507e782f4f9164dfa566d1f10, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hintDelay: 0
+  hintDelay: 3
   hintParticle: {fileID: 6222825155356241047, guid: f99a088f4c8ca904ca103b8440058d10, type: 3}
   currentHint: {fileID: 0}
   possibleMoves: []
