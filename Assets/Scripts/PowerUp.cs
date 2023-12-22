@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine.EventSystems;
 using UnityEngine;
 
@@ -23,6 +24,7 @@ public class ButtonClickHandler : MonoBehaviour//, IPointerClickHandler
     }*/
 
     // Public method to be called from other parts of your code
+    
     public void ExecuteRemoveSelectedVeggie()
     {
         if (veggieBoard != null)
@@ -42,31 +44,62 @@ public class ButtonClickHandler : MonoBehaviour//, IPointerClickHandler
         {
             Veggie selectedVeggie = veggieBoard.selectedVeggie;
 
-            // Видалення об'єкта в залежності від bombType
             switch (bombType)
             {
                 case BombType.Tpick:
-                    veggieBoard.veggiesToRemove.Add(selectedVeggie);
-                    veggieBoard.StartCoroutine(veggieBoard.ProcessTurnOnMatchesBoard(true));
-                    Destroy(selectedVeggie.gameObject);
+                    if (veggieBoard.energyLevel >= 100)
+                    {
+                        veggieBoard.veggiesToRemove.Add(selectedVeggie);
+                        veggieBoard.StartCoroutine(veggieBoard.ProcessTurnOnMatchesBoard(true));
+                        Destroy(selectedVeggie.gameObject);
+                        veggieBoard.energyLevel = 0;
+                    }
+                    else
+                    {
+                        Debug.Log("Energy level is not sufficient for Tpick!");
+                    }
                     break;
                 case BombType.Knifes:
-                    veggieBoard.RemovePlusShape(selectedVeggie.xIndex, selectedVeggie.yIndex);
-                    veggieBoard.StartCoroutine(veggieBoard.ProcessTurnOnMatchesBoard(true));
+                    if (veggieBoard.energyLevel >= 400)
+                    {
+                        veggieBoard.RemovePlusShape(selectedVeggie.xIndex, selectedVeggie.yIndex);
+                        veggieBoard.StartCoroutine(veggieBoard.ProcessTurnOnMatchesBoard(true));
+                        veggieBoard.energyLevel = 0;
+                    }
+                    else
+                    {
+                        Debug.Log("Energy level is not sufficient for Knifes!");
+                    }
                     break;
                 case BombType.Fork:
-                    veggieBoard.RemoveSameType(selectedVeggie.xIndex, selectedVeggie.yIndex);
-                    veggieBoard.StartCoroutine(veggieBoard.ProcessTurnOnMatchesBoard(true));
-
+                    if (veggieBoard.energyLevel >= 300)
+                    {
+                        veggieBoard.RemoveSameType(selectedVeggie.xIndex, selectedVeggie.yIndex);
+                        veggieBoard.StartCoroutine(veggieBoard.ProcessTurnOnMatchesBoard(true));
+                        veggieBoard.energyLevel = 0;
+                    }
+                    else
+                    {
+                        Debug.Log("Energy level is not sufficient for Fork!");
+                    }
                     break;
                 case BombType.Spoon:
-                    veggieBoard.Remove3x3(selectedVeggie.xIndex, selectedVeggie.yIndex);
-                    veggieBoard.StartCoroutine(veggieBoard.ProcessTurnOnMatchesBoard(true));
-                    break;
+                    if (veggieBoard.energyLevel >= 200)
+                    {
+                        veggieBoard.Remove3x3(selectedVeggie.xIndex, selectedVeggie.yIndex);
+                        veggieBoard.StartCoroutine(veggieBoard.ProcessTurnOnMatchesBoard(true));
+                        veggieBoard.energyLevel = 0;
+                    }
+                    else
+                    {
+                        Debug.Log("Energy level is not sufficient for Spoon!");
+                    }
+                    break; 
             }
-
+            
             Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
             veggieBoard.selectedVeggie = null;
+            bombType = BombType.None;
         }
     }
 }

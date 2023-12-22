@@ -45,6 +45,9 @@ public class VeggieBoard : MonoBehaviour
     public GameObject flipTileParent;
 
 
+    public float energyLevel = 0f;
+    public float maxEnergy = 500f;
+    
     [SerializeField]
     public Veggie selectedVeggie;
 
@@ -63,12 +66,22 @@ public class VeggieBoard : MonoBehaviour
 
     //layoutArray
     public ArrayLayout arrayLayout;
-    
+
+
+    //Ice
+    public ArrayLayout iceArrayLayout;
+    public GameObject icePrefab;
+    public List<GameObject> iceToDestroy = new();
+    public List<GameObject> iceToRemove = new();
+    public GameObject iceParent;
+
+
     //public static of board
     public static VeggieBoard Instance;
 
     public int streak = 1;
     public int pieceValue = 200;
+
 
     private void Awake()
     {
@@ -89,6 +102,7 @@ public class VeggieBoard : MonoBehaviour
         DestroyVeggies();
         DestroyBGTiles();
         DestroyFlipTiles();
+        DestroyIces();
 
         veggieBoard = new Node[width, height];
 
@@ -106,6 +120,15 @@ public class VeggieBoard : MonoBehaviour
                 }
                 else
                 {
+                    if (iceArrayLayout.rows[y].row[x])
+                    {
+                        // Initialize ice element
+                        GameObject ice = Instantiate(icePrefab, position, Quaternion.identity);
+                        ice.transform.SetParent(iceParent.transform);
+                        ice.GetComponent<Ice>().SetIndicies(x, y);
+                        veggieBoard[x, y] = new Node(false, ice);
+                        iceToDestroy.Add(ice);
+                    }
                     if (IsFlipMap)
                     {
                         GameObject flipTile = Instantiate(flipTilePrefab, position, Quaternion.identity);
@@ -124,7 +147,7 @@ public class VeggieBoard : MonoBehaviour
                     veggie.transform.SetParent(veggieParent.transform);
                     veggie.GetComponent<Veggie>().SetIndicies(x, y);
                     veggieBoard[x, y] = new Node(true, veggie);
-                    
+
                     tilesToDestroy.Add(tile);
                     veggiesToDestroy.Add(veggie);
                 }
@@ -163,8 +186,11 @@ public class VeggieBoard : MonoBehaviour
                     
                     Veggie veggie = hit.collider.gameObject.GetComponent<Veggie>();
                     //Debug.Log($"I have a clicked a veggie it is: a {veggie.gameObject}");
+                    //veggie.GetComponent<Renderer>().material.color = Color.yellow;
 
                     SelectVeggie(veggie);
+                    //veggie.GetComponent<Renderer>().material.color = Color.white;
+
                 }
                 else if (hit.collider.gameObject.GetComponent<UtilsButton>())
                 {
@@ -180,6 +206,7 @@ public class VeggieBoard : MonoBehaviour
                     selectedVeggie = null;
                 }
 
+
             }
 
             if (hintManager.currentHint != null)
@@ -188,6 +215,9 @@ public class VeggieBoard : MonoBehaviour
             }
         }
     }
+
+
+
 
     public bool CheckBoard()
     {
@@ -300,10 +330,12 @@ public class VeggieBoard : MonoBehaviour
         {
             veggieToRemove.isMatched = false;
         }
+        HandleEnergyIncrease();
+        
         RemoveAndRefill(veggiesToRemove);
         gameManager.ProcessTurn(veggiesToRemove.Count*pieceValue*streak, substractMoves);
         yield return new WaitForSeconds(0.4f);
-
+        
         if (CheckBoard())
         {
             streak += 1;
@@ -366,8 +398,14 @@ public class VeggieBoard : MonoBehaviour
             }
         }
     }
-
-    public void Remove3x3(int startX, int startY)
+    
+    public List<Veggie> GetVeggiesToRemove()
+    {
+        return veggiesToRemove;
+    }
+    
+    public void 
+        Remove3x3(int startX, int startY)
     {
         RemoveVeggiesInDirection(startX, startY, 1, 0); // Horizontal
         RemoveVeggiesInDirection(startX, startY, 0, 1); // Vertical
@@ -402,13 +440,36 @@ public class VeggieBoard : MonoBehaviour
 
 
     #endregion
+    
+    #region Energy
+    public void HandleEnergyIncrease()
+    {
+        List<Veggie> veggiesToRemove = GetVeggiesToRemove();
 
+        int matchCount = veggiesToRemove.Count;
+
+        float amount = (matchCount >= 4) ? 5 * matchCount : 0;
+
+        IncreaseEnergy(amount);
+    }
+    
+    void IncreaseEnergy(float amount)
+    {
+        energyLevel += amount;
+        Debug.Log("Energy Level Increased: " + energyLevel);
+        //ensuring the energy level does not exceed the maximum
+        energyLevel = Mathf.Clamp(energyLevel, 0f, maxEnergy);
+    }
+    
+    #endregion
+    
     #region Cascading Veggies
-        //RemoveAndRefill
+    //RemoveAndRefill
     private void RemoveAndRefill(List<Veggie> _veggiesToRemove)
     {
         // Create a list to store flipTiles to remove
         List<GameObject> flipTilesToRemove = new List<GameObject>();
+        List<GameObject> icesToRemove = new List<GameObject>();
 
         // Removing the veggie and clearing the board at that location
         foreach (Veggie veggie in _veggiesToRemove)
@@ -417,61 +478,94 @@ public class VeggieBoard : MonoBehaviour
             int _xIndex = veggie.xIndex;
             int _yIndex = veggie.yIndex;
 
-            // Check if there is a flipTile at the same position
-            GameObject flipTile = null;
-
-            // Iterate through the flipTilesToDestroy list to find the matching flipTile
-            foreach (GameObject ft in flipTilesToDestroy)
+            if (iceArrayLayout.rows[_yIndex].row[_xIndex])
             {
-                FlipTile flipTileComponent = ft.GetComponent<FlipTile>();
-                if (flipTileComponent.xIndex == _xIndex && flipTileComponent.yIndex == _yIndex)
+                GameObject Ice = null;
+                foreach (GameObject ice in iceToDestroy)
                 {
-                    flipTile = ft;
-                    break;
+                    Ice iceComponent = ice.GetComponent<Ice>();
+                    if (iceComponent.xIndex == _xIndex && iceComponent.yIndex == _yIndex)
+                    {
+                        Ice = ice;
+                        break;
+                    }
                 }
-            }
-
-            if (flipTile != null)
-            {
-                // Add the flipTile to the list for removal
-                flipTilesToRemove.Add(flipTile);
-            }
-
-
-            // Goal completion
-            var goalIndex = FindByElement(gameManager.goalTile, veggie.veggiesType);
-            if (goalIndex != -1)
-            {
-                gameManager.goalTileGoals[goalIndex] -= 1;
-            }
-
-
-            //Destroy the veggie
-            Destroy(veggie.gameObject);
-
-            //Create a blank node on the veggie board.
-            veggieBoard[_xIndex, _yIndex] = new Node(true, null);
-        }
-
-        // Remove the flipTiles at the matched positions
-        foreach (GameObject flipTileToRemove in flipTilesToRemove)
-        {
-            flipTilesToDestroy.Remove(flipTileToRemove);
-            Destroy(flipTileToRemove);
-        }
-
-        for (int x = 0; x < width; x++)
-        {
-            for (int y = 0; y < height; y++)
-            {
-                if (veggieBoard[x, y].veggie == null && veggieBoard[x, y].isUsable)
+                if (Ice != null)
                 {
-                    //Debug.Log("The location X: " + x + " Y: " + y + " is empty, attempting to refill it.");
-                    RefillVeggie(x, y);
+                    // Add the flipTile to the list for removal
+                    iceToRemove.Add(Ice);
+                }
+                foreach (GameObject iceToRemove in icesToRemove)
+                {
+                    iceToDestroy.Remove(iceToRemove);
+                    Destroy(iceToRemove);
+                }
+
+                iceArrayLayout.rows[_yIndex].row[_xIndex] = false;
+            }
+            else
+            {
+
+                // Check if there is a flipTile at the same position
+                GameObject flipTile = null;
+
+                // Iterate through the flipTilesToDestroy list to find the matching flipTile
+                foreach (GameObject ft in flipTilesToDestroy)
+                {
+                    FlipTile flipTileComponent = ft.GetComponent<FlipTile>();
+                    if (flipTileComponent.xIndex == _xIndex && flipTileComponent.yIndex == _yIndex)
+                    {
+                        flipTile = ft;
+                        break;
+                    }
+                }
+
+                if (flipTile != null)
+                {
+                    // Add the flipTile to the list for removal
+                    flipTilesToRemove.Add(flipTile);
+                }
+
+
+                // Goal completion
+                var goalIndex = FindByElement(gameManager.goalTile, veggie.veggiesType);
+                if (goalIndex != -1)
+                {
+                    gameManager.goalTileGoals[goalIndex] -= 1;
+                }
+
+
+                //Destroy the veggie
+                Destroy(veggie.gameObject);
+
+                //Create a blank node on the veggie board.
+                veggieBoard[_xIndex, _yIndex] = new Node(true, null);
+
+                // Remove the flipTiles at the matched positions
+                foreach (GameObject flipTileToRemove in flipTilesToRemove)
+                {
+                    flipTilesToDestroy.Remove(flipTileToRemove);
+                    Destroy(flipTileToRemove);
+                }
+
+                for (int x = 0; x < width; x++)
+                {
+                    for (int y = 0; y < height; y++)
+                    {
+                        if (veggieBoard[x, y].veggie == null && veggieBoard[x, y].isUsable)
+                        {
+                            //Debug.Log("The location X: " + x + " Y: " + y + " is empty, attempting to refill it.");
+                            RefillVeggie(x, y);
+                        }
+                    }
                 }
             }
         }
     }
+
+    //RemoveAndRefill
+    
+
 
     //RefillVeggies
     private void RefillVeggie(int x, int y)
@@ -591,7 +685,7 @@ public class VeggieBoard : MonoBehaviour
         }
         else if (_matchedResults.direction == MatchDirection.Vertical || _matchedResults.direction == MatchDirection.LongVertical)
         {
-            //for each potion...
+            //for each veggie...
             foreach (Veggie veg in _matchedResults.connectedVeggies)
             {
                 List<Veggie> extraConnectedVeggies = new();
@@ -622,6 +716,7 @@ public class VeggieBoard : MonoBehaviour
         //this shouldn't be possible, but a null return is required so the method is valid.
         return null;
     }
+
     //IsConnected
     MatchResult IsConnected(Veggie veggie)
     {
@@ -735,6 +830,7 @@ public class VeggieBoard : MonoBehaviour
     }
 
     #region
+    #region DestroyALL
     //destroy veggies
     private void DestroyVeggies()
     {
@@ -769,6 +865,31 @@ public class VeggieBoard : MonoBehaviour
             flipTilesToDestroy.Clear();
         }
     }
+    private void DestroyIces()
+    {
+        if (iceToDestroy != null)
+        {
+            foreach (GameObject ice in iceToDestroy)
+            {
+                Destroy(ice);
+            }
+            iceToDestroy.Clear();
+        }
+    }
+
+    private void RemoveIces()
+    {
+        if (iceToRemove != null)
+        {
+            foreach (GameObject ice in iceToRemove)
+            {
+                Destroy(ice);
+            }
+            iceToRemove.Clear();
+        }
+    }
+    #endregion
+
     //select veggies
     public void SelectVeggie(Veggie veg)
     {
@@ -776,14 +897,17 @@ public class VeggieBoard : MonoBehaviour
         {
             Debug.Log(veg);
             selectedVeggie = veg;
+            selectedVeggie.GetComponent<Renderer>().material.color = Color.gray;
         }
         else if (selectedVeggie == veg)
         {
+            selectedVeggie.GetComponent<Renderer>().material.color = Color.white;
             selectedVeggie = null;
         }
         else if (selectedVeggie != veg)
         {
             SwapVeggies(selectedVeggie, veg);
+            selectedVeggie.GetComponent<Renderer>().material.color = Color.white;
             selectedVeggie = null;
         }
     }
