@@ -50,8 +50,8 @@ public class ButtonClickHandler : MonoBehaviour//, IPointerClickHandler
                     if (veggieBoard.energyLevel >= 100)
                     {
                         veggieBoard.veggiesToRemove.Add(selectedVeggie);
+                        //Destroy(selectedVeggie.gameObject);
                         veggieBoard.StartCoroutine(veggieBoard.ProcessTurnOnMatchesBoard(true));
-                        Destroy(selectedVeggie.gameObject);
                         veggieBoard.energyLevel = 0;
                     }
                     else

@@ -812,7 +812,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   requirements:
     gameType: 0
-    counterValue: 5
+    counterValue: 50
     goal: 2000
     goalTile: 05000000
     goalTileGoals: 0200000002000000
@@ -1352,9 +1352,15 @@ MonoBehaviour:
   - x: 5
     y: 5
     tileKind: 0
+  - x: 2
+    y: 2
+    tileKind: 1
   icePrefab: {fileID: 6029892267882083453, guid: dfc899c05e5e0ce449c032064b2a5543, type: 3}
   iceToDestroy: []
   iceParent: {fileID: 1007277728}
+  bugPrefab: {fileID: 995411735551722424, guid: f9170680222eb6c4aba601dd04a0448f, type: 3}
+  bugToDestroy: []
+  bugParent: {fileID: 1636592630}
   width: 7
   height: 7
   spacingX: 0
@@ -1371,7 +1377,7 @@ MonoBehaviour:
   tilePrefab: {fileID: 7248715495750755334, guid: 06d5e7e6b85f5554580d0945ee91b74f, type: 3}
   tilesToDestroy: []
   tileParent: {fileID: 732273788}
-  IsFlipMap: 1
+  IsFlipMap: 0
   flipTilePrefab: {fileID: 473563868245472644, guid: 09a0372cf8103384f8f8fcc1446a16e4, type: 3}
   flipTilesToDestroy: []
   flipTileParent: {fileID: 170789073}
@@ -1413,6 +1419,7 @@ Transform:
   - {fileID: 1143571109}
   - {fileID: 732273789}
   - {fileID: 1007277729}
+  - {fileID: 1636592631}
   - {fileID: 170789074}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1491,6 +1498,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1622950906}
   m_CullTransparentMesh: 1
+--- !u!1 &1636592630
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1636592631}
+  m_Layer: 0
+  m_Name: BugParent
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1636592631
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1636592630}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.31331614, y: -2.126113, z: -94.15052}
+  m_LocalScale: {x: 1.8416586, y: 1.8416586, z: 1.8416586}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1498682299}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1714522024
 GameObject:
   m_ObjectHideFlags: 0

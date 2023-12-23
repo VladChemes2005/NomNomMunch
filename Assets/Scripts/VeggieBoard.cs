@@ -1,9 +1,14 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using Unity.Jobs.LowLevel.Unsafe;
+using Unity.Properties;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Random = UnityEngine.Random;
 
 public class VeggieBoard : MonoBehaviour
 {
@@ -22,7 +27,8 @@ public class VeggieBoard : MonoBehaviour
     public enum TileKind
     {
         Ice,
-        Bug
+        Bug,
+        Normal
     }
 
     [System.Serializable]
@@ -34,11 +40,16 @@ public class VeggieBoard : MonoBehaviour
     }
     public TileType[] boardLayout;
 
-    
-
     public GameObject icePrefab;
     public List<GameObject> iceToDestroy = new();
     public GameObject iceParent;
+
+
+    public GameObject bugPrefab;
+    public List<GameObject> bugToDestroy = new();
+    public GameObject bugParent;
+
+
 
     //defining board size
     public int width = 7;
@@ -116,6 +127,7 @@ public class VeggieBoard : MonoBehaviour
         DestroyBGTiles();
         DestroyFlipTiles();
         DestroyIce();
+        DestroyBug();
 
         veggieBoard = new Node[width, height];
 
@@ -142,7 +154,7 @@ public class VeggieBoard : MonoBehaviour
                         veggieBoard[x, y] = new Node(false, ice);
                         iceToDestroy.Add(ice);
                     }
-                    
+
                     if (IsFlipMap)
                     {
                         GameObject flipTile = Instantiate(flipTilePrefab, position, Quaternion.identity);
@@ -158,14 +170,24 @@ public class VeggieBoard : MonoBehaviour
                     tile.transform.SetParent(tileParent.transform);
                     veggieBoard[x, y] = new Node(false, tile);
 
-                    GameObject veggie = Instantiate(veggiesPrefabs[randomIndex], position, Quaternion.identity);
-                    veggie.transform.SetParent(veggieParent.transform);
-                    veggie.GetComponent<Veggie>().SetIndicies(x, y);
-                    veggieBoard[x, y] = new Node(true, veggie);
+                    if (boardLayout.Any(tile => tile.x == x && tile.y == y && tile.tileKind == TileKind.Bug))
+                    {
+                        GameObject bug = Instantiate(bugPrefab, position, Quaternion.identity);
+                        bug.transform.SetParent(bugParent.transform);
+                        bug.GetComponent<Veggie>().SetIndicies(x, y);
+                        veggieBoard[x, y] = new Node(true, bug);
+                        bugToDestroy.Add(bug);
+                    }
+                    else
+                    {
+                        GameObject veggie = Instantiate(veggiesPrefabs[randomIndex], position, Quaternion.identity);
+                        veggie.transform.SetParent(veggieParent.transform);
+                        veggie.GetComponent<Veggie>().SetIndicies(x, y);
+                        veggieBoard[x, y] = new Node(true, veggie);
+                        veggiesToDestroy.Add(veggie);
+                    }
 
                     tilesToDestroy.Add(tile);
-                    veggiesToDestroy.Add(veggie);
-                    
                 }
             }
         }
@@ -193,7 +215,8 @@ public class VeggieBoard : MonoBehaviour
 
             if (hit.collider != null)
             {
-                if(hit.collider.gameObject.GetComponent<Veggie>() && buttonClickHandler.bombType == BombType.None)
+                if(hit.collider.gameObject.GetComponent<Veggie>() && buttonClickHandler.bombType == BombType.None && hit.collider.gameObject.GetComponent<Veggie>() !=
+                boardLayout.Any(tile => tile.x == hit.collider.gameObject.GetComponent<Veggie>().xIndex && tile.y == hit.collider.gameObject.GetComponent<Veggie>().yIndex && tile.tileKind == TileKind.Ice))
                 {
                     if (isProcessingMove)
                     {
@@ -474,7 +497,7 @@ public class VeggieBoard : MonoBehaviour
 
     #region Cascading Veggies
     //RemoveAndRefill
-    private void RemoveAndRefill(List<Veggie> _veggiesToRemove)
+    /*private void RemoveAndRefill(List<Veggie> _veggiesToRemove)
     {
         // Create a list to store flipTiles to remove
         List<GameObject> flipTilesToRemove = new List<GameObject>();
@@ -514,7 +537,6 @@ public class VeggieBoard : MonoBehaviour
                 gameManager.goalTileGoals[goalIndex] -= 1;
             }
 
-
             //Destroy the veggie
             Destroy(veggie.gameObject);
 
@@ -540,7 +562,133 @@ public class VeggieBoard : MonoBehaviour
                 }
             }
         }
+    }*/
+
+
+
+    private void RemoveAndRefill(List<Veggie> veggiesToRemove)
+    {
+        List<GameObject> flipTilesToRemove = new List<GameObject>();
+        List<GameObject> icesToRemove = new List<GameObject>();
+        List<GameObject> bugsToRemove = new List<GameObject>();
+
+        foreach (Veggie veggie in veggiesToRemove)
+        {
+            int _xIndex = veggie.xIndex;
+            int _yIndex = veggie.yIndex;
+
+            if (boardLayout.Any(tile => tile.x == _xIndex && tile.y == _yIndex && tile.tileKind == TileKind.Ice))
+            {
+                GameObject iceToRemove = null;
+
+                foreach (GameObject ice in iceToDestroy)
+                {
+                    Ice iceComponent = ice.GetComponent<Ice>();
+                    if (iceComponent.xIndex == _xIndex && iceComponent.yIndex == _yIndex)
+                    {
+                        iceToRemove = ice;
+                        for (int i = 0; i < boardLayout.Length; i++)
+                        {
+                            if (boardLayout[i].x == iceComponent.xIndex && boardLayout[i].y == iceComponent.yIndex)
+                            {
+                                boardLayout[i].tileKind = TileKind.Normal;
+                            }
+                        }
+                        break;
+                    }
+                    
+                }
+
+                if (iceToRemove != null)
+                {
+                    icesToRemove.Add(iceToRemove);
+                }
+
+                // Update the iceArrayLayout (assuming it's a 2D array)
+            }
+            else if (boardLayout.Any(tile => tile.x == _xIndex && tile.y == FindIndexOfLowestNull(_xIndex) && tile.tileKind == TileKind.Bug))
+            {
+                GameObject bugToRemove = null;
+
+                foreach (GameObject bug in bugToDestroy)
+                {
+                    Veggie bugComponent = bug.GetComponent<Veggie>();
+                    if (bugComponent.xIndex == _xIndex && bugComponent.yIndex == _yIndex && _yIndex == FindIndexOfLowestNull(_xIndex))
+                    {
+                        Destroy(bug.gameObject);
+                        break;
+                    }
+
+                }
+            }
+            else
+            {
+                // Check if there is a flipTile at the same position
+                GameObject flipTile = null;
+
+                foreach (GameObject ft in flipTilesToDestroy)
+                {
+                    FlipTile flipTileComponent = ft.GetComponent<FlipTile>();
+                    if (flipTileComponent.xIndex == _xIndex && flipTileComponent.yIndex == _yIndex)
+                    {
+                        flipTile = ft;
+                        break;
+                    }
+                }
+
+                if (flipTile != null)
+                {
+                    flipTilesToRemove.Add(flipTile);
+                }
+
+                // Goal completion
+                var goalIndex = FindByElement(gameManager.goalTile, veggie.veggiesType);
+                if (goalIndex != -1)
+                {
+                    gameManager.goalTileGoals[goalIndex] -= 1;
+                }
+
+                // Destroy the veggie
+                Destroy(veggie.gameObject);
+
+                // Create a blank node on the veggie board.
+                veggieBoard[_xIndex, _yIndex] = new Node(true, null);
+            }
+        }
+
+        // Remove the ices at the matched positions
+        foreach (GameObject iceToRemove in icesToRemove)
+        {
+            iceToDestroy.Remove(iceToRemove);
+            Destroy(iceToRemove);
+        }
+
+        foreach (GameObject bugToRemove in bugsToRemove)
+        {
+            bugToDestroy.Remove(bugToRemove);
+            Destroy(bugToRemove);
+        }
+
+        // Remove the flipTiles at the matched positions
+        foreach (GameObject flipTileToRemove in flipTilesToRemove)
+        {
+            flipTilesToDestroy.Remove(flipTileToRemove);
+            Destroy(flipTileToRemove);
+        }
+
+        // Refill the board
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                if (veggieBoard[x, y].veggie == null && veggieBoard[x, y].isUsable)
+                {
+                    RefillVeggie(x, y);
+                }
+            }
+        }
     }
+
 
     //RefillVeggies
     private void RefillVeggie(int x, int y)
@@ -784,7 +932,7 @@ public class VeggieBoard : MonoBehaviour
                 Veggie neighbourVeggie = veggieBoard[x, y].veggie.GetComponent<Veggie>();
 
                 //does our potionType Match? it must also not be matched
-                if (!neighbourVeggie.isMatched && neighbourVeggie.veggiesType == vegType)
+                if (!neighbourVeggie.isMatched && neighbourVeggie.veggiesType == vegType && vegType != VeggieType.bug)
                 {
                     connectedVeggies.Add(neighbourVeggie);
 
@@ -848,6 +996,18 @@ public class VeggieBoard : MonoBehaviour
                 Destroy(ice);
             }
             iceToDestroy.Clear();
+        }
+    }
+
+    private void DestroyBug()
+    {
+        if (bugToDestroy != null)
+        {
+            foreach (GameObject bug in bugToDestroy)
+            {
+                Destroy(bug);
+            }
+            bugToDestroy.Clear();
         }
     }
 

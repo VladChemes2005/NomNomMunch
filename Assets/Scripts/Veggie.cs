@@ -85,5 +85,6 @@ public enum VeggieType
     onion,
     pepper,
     potato,
-    tomato
+    tomato,
+    bug
 }
