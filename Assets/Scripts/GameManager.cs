@@ -20,6 +20,7 @@ public class EndGameRequirements
     public int goal;
     public VeggieType[] goalTile;
     public int[] goalTileGoals;
+    public Sprite[] goalSprite;
 }
 
 public class GameManager : MonoBehaviour
@@ -39,17 +40,28 @@ public class GameManager : MonoBehaviour
     private float timerSeconds;
     public int points = 0;
     public int currentCounterValue;
+    [SerializeField]
     public VeggieType[] goalTile;
+    
+    [SerializeField]
     public int[] goalTileGoals;
-
 
     /*public GameObject backgroundPanel;
     public GameObject victoryPanel;
     public GameObject losePanel;*/
     public GameObject movesLabel;
     public GameObject timeLabel;
+
+    /*public GameObject goal;
+    public GameObject gameGoal;*/
+    public GameObject goalPrefab;
+    public GameObject goalIntroParent;
+    public GameObject goalGameParent;
+
     public Text counter;
     public Text score;
+    //public Sprite goalSprite;
+    //public GoalPanel panel;
 
     public bool IsGameEnded = false;
 
@@ -87,6 +99,23 @@ public class GameManager : MonoBehaviour
         }
         counter.text = $"{currentCounterValue}";
         score.text = "0";
+
+        for(int i = 0; i < goalTile.Length; i++) 
+        {
+            // Goal panel at the goalIntroParent
+            GameObject goal = Instantiate(goalPrefab, goalIntroParent.transform.position, Quaternion.identity);
+            goal.transform.SetParent(goalIntroParent.transform);
+
+            GoalPanel panel = goal.GetComponent<GoalPanel>();
+            panel.thisSprite = requirements.goalSprite[i];
+            panel.thisString = "0/" + $"{requirements.goalTileGoals}";
+
+            //new Goal Panel at the goalGameParent position
+            GameObject gameGoal = Instantiate(goalPrefab, goalIntroParent.transform.position, Quaternion.identity);
+            gameGoal.transform.SetParent(goalGameParent.transform);
+
+        }
+
     }
 
     public void ProcessTurn(int pointsToGain, bool substractMoves)
