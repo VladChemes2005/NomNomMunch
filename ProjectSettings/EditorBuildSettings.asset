@@ -5,7 +5,37 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/SampleScene.unity
     guid: 2cda990e2423bbf4892e6590ba056729
+  - enabled: 1
+    path: Assets/Scenes/MainMenu.unity
+    guid: 7b09d77fbf504724bac60b93fcdb499e
+  - enabled: 1
+    path: Assets/Scenes/ChooseMode.unity
+    guid: a43fba8b8ebbb76489d0aad171b66df5
+  - enabled: 1
+    path: Assets/Scenes/AdvMap.unity
+    guid: dfb0a14b116888345818d808a3bc2876
+  - enabled: 1
+    path: Assets/Scenes/ChalMap.unity
+    guid: 44538290350a9ca4faba397e8c19c1f4
+  - enabled: 1
+    path: Assets/Scenes/lvl1.unity
+    guid: 61d6da1a43e21f94ab546eeb3c82d333
+  - enabled: 1
+    path: Assets/Scenes/lvl2.unity
+    guid: c7efc82ec85713c4483606cd2655163b
+  - enabled: 1
+    path: Assets/Scenes/lvl3.unity
+    guid: ed3443a289a34d04ab9581a433499e5f
+  - enabled: 1
+    path: Assets/Scenes/lvl4.unity
+    guid: c69b847800751574283fdf4816f485d8
+  - enabled: 1
+    path: Assets/Scenes/lvl5.unity
+    guid: 32b7a1da9dce75d448d64c6a2e84538d
+  - enabled: 1
+    path: Assets/Scenes/Challenge.unity
+    guid: 0610272114f12644e8d0f583d812ee47
   m_configObjects: {}
