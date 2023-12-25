@@ -10,8 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 7744620569301885764}
   - component: {fileID: 1152727078410551407}
-  - component: {fileID: -6027439683429977237}
   - component: {fileID: 1150174980883069702}
+  - component: {fileID: 6730233939521769090}
   m_Layer: 0
   m_Name: Circle
   m_TagString: Untagged
@@ -86,23 +86,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &-6027439683429977237
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 995411735551722424}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9757870bf24b5354a8bffc302701b259, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  veggiesType: 10
-  xIndex: 0
-  yIndex: 0
-  isMatched: 0
-  isMoving: 0
 --- !u!61 &1150174980883069702
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -148,3 +131,20 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &6730233939521769090
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 995411735551722424}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8416728cd9bbdc489bccb31a1915834, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CascadeBlock: 0
+  MovementBlock: 0
+  xIndex: 0
+  yIndex: 0
+  PendingDestroy: 0

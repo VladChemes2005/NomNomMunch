@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74ef953af08ce0f40bc280695762fac7, type: 3}
+  m_Name: TestSceneData
+  m_EditorClassIdentifier: 
+  Requirements:
+    GameType: 0
+    CounterValue: 10
+    Goal: 10000
+    GoalTile: 00000000
+    GoalTileGoals: 06000000
+    GoalSprite:
+    - {fileID: 21300000, guid: a837e8205d7be9347b392472a8c322a5, type: 3}
+    IsFlipMap: 1
+  TimerSeconds: 0
+  Points: 0
+  CurrentCounterValue: 0
+  IsGameEnded: 0
+  GoalTile: 00000000
+  GoalTileGoals: 06000000
+  MovesLabel: {fileID: 0}
+  TimeLabel: {fileID: 0}
+  GoalPrefab: {fileID: 3052356171074796763, guid: f5ad315d25aa44c4b8f9a34681e690fa, type: 3}
+  GoalIntroParent: {fileID: 0}
+  GoalGameParent: {fileID: 0}
+  Counter: {fileID: 0}
+  Score: {fileID: 0}

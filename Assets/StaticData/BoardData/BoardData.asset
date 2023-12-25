@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: BoardData
+  m_EditorClassIdentifier: Assembly-CSharp::BoardData
+  PrefabPack: {fileID: 11400000, guid: e4eed74b90acab14eb4d49b0c36bef4b, type: 2}
+  VeggiesPrefabs:
+  - {fileID: 8049746747283710906, guid: 24ea3707b558c594baf181acbde05740, type: 3}
+  - {fileID: -1925035489138711668, guid: d4a727d5f3378454899e56b296043e01, type: 3}
+  - {fileID: -3621231369087313378, guid: f1a7deba6fc0af947992fb89749b19ec, type: 3}
+  - {fileID: 8170587146228313369, guid: bf4bff69b495964479686b9dc7ee2bbd, type: 3}
+  - {fileID: -176660174403901555, guid: 2403034eb451b374c8e407ac3ce77466, type: 3}
+  TileParent: {fileID: 0}
+  width: 7
+  height: 7
+  position: {x: 0, y: 0}
+  BoardLayout:
+  - x: 5
+    y: 4
+    TileType: 0
+  ArrayLayout:
+    rows:
+    - row: 01000000000001
+    - row: 00000000000000
+    - row: 00000000000000
+    - row: 00000000000000
+    - row: 00000000000000
+    - row: 00000000000000
+    - row: 01000000000001
